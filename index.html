@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-Saraban สสอ.กู่แก้ว</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ถ้าโหลดฟอนต์จาก CDN ไม่ได้ จะใช้ฟอนต์ไทยของระบบแทนอัตโนมัติ */
+:root{
+  --primary:#1565e0;--primary-d:#0b3d91;--primary-l:#e8f1ff;--accent:#3d8bfd;
+  --ok:#1e8e3e;--ok-l:#e6f4ea;--warn:#e37400;--warn-l:#fef3e2;--bad:#d93025;--bad-l:#fce8e6;
+  --text:#1f2937;--muted:#6b7280;--bg:#f4f6fb;--card:#fff;--line:#e3e8f0;
+  --radius:12px;--shadow:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:'Sarabun','Noto Sans Thai','Leelawadee UI','Tahoma',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.55}
+button,input,select,textarea{font:inherit}
+a{color:var(--primary)}
+.hidden{display:none!important}
+
+/* ---------- Layout ---------- */
+.app{display:flex;min-height:100vh}
+.sidebar{width:248px;background:linear-gradient(180deg,var(--primary-d),#0f4fb8);color:#fff;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;z-index:40;transition:transform .2s}
+.brand{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
+.brand b{display:block;font-size:20px;letter-spacing:.3px}
+.brand small{opacity:.8;font-size:12.5px}
+.nav{padding:10px 8px;overflow-y:auto;flex:1}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:#dbe7ff;padding:10px 12px;border-radius:9px;cursor:pointer;text-align:left;font-size:15px}
+.nav button:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav button.active{background:#fff;color:var(--primary-d);font-weight:600}
+.nav .sec{font-size:11.5px;opacity:.6;padding:12px 12px 4px;text-transform:uppercase;letter-spacing:.5px}
+.nav .ico{width:20px;text-align:center}
+.sidebar-foot{padding:12px 16px;font-size:12px;opacity:.7}
+.main{flex:1;margin-left:248px;min-width:0;display:flex;flex-direction:column}
+.topbar{height:62px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 22px;position:sticky;top:0;z-index:30}
+.topbar h1{font-size:18px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu-btn{display:none;background:none;border:0;font-size:22px;cursor:pointer;color:var(--primary-d)}
+.bell{position:relative;background:var(--primary-l);border:0;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:17px}
+.bell .dot{position:absolute;top:-3px;right:-3px;background:var(--bad);color:#fff;border-radius:10px;font-size:11px;padding:0 5px;min-width:18px}
+.user-chip{display:flex;align-items:center;gap:8px;font-size:14px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:700}
+.content{padding:22px;max-width:1400px;width:100%}
+.backdrop{display:none}
+
+/* ---------- Components ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card h3{margin:0 0 12px;font-size:16px}
+.grid{display:grid;gap:14px}
+.stats{grid-template-columns:repeat(auto-fill,minmax(205px,1fr))}
+.stat{display:flex;gap:12px;align-items:center;cursor:default}
+.stat .si{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:21px;background:var(--primary-l);flex-shrink:0}
+.stat .sv{font-size:26px;font-weight:700;line-height:1.1}
+.stat .sl{color:var(--muted);font-size:13.5px}
+.stat.ok .si{background:var(--ok-l)}.stat.warn .si{background:var(--warn-l)}.stat.bad .si{background:var(--bad-l)}
+.stat.bad .sv{color:var(--bad)}.stat.warn .sv{color:var(--warn)}
+.two{grid-template-columns:2fr 1fr}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;border-radius:9px;padding:8px 14px;cursor:pointer;font-weight:500;background:var(--primary);color:#fff;white-space:nowrap}
+.btn:hover{filter:brightness(.95)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.sec{background:#fff;color:var(--primary-d);border-color:var(--line)}
+.btn.ok{background:var(--ok)}.btn.warn{background:var(--warn)}.btn.bad{background:var(--bad)}
+.btn.sm{padding:4px 10px;font-size:13.5px}
+.btn.ghost{background:none;color:var(--primary);padding:4px 8px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:14px}
+.toolbar .grow{flex:1}
+.quick{display:flex;flex-wrap:wrap;gap:8px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:13.5px;font-weight:600;color:#374151}
+.field label .req{color:var(--bad)}
+.field input,.field select,.field textarea,.toolbar input,.toolbar select{border:1px solid #cfd7e3;border-radius:8px;padding:8px 10px;background:#fff;color:var(--text);width:100%}
+.field input:focus,.field select:focus,.field textarea:focus,.toolbar input:focus,.toolbar select:focus{outline:2px solid #bcd5ff;border-color:var(--primary)}
+.field.invalid input,.field.invalid select,.field.invalid textarea{border-color:var(--bad);background:#fffafa}
+.field .msg{color:var(--bad);font-size:12.5px;min-height:0}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+.form-grid .full{grid-column:1/-1}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#f7f9fd;font-weight:600;color:#374151;white-space:nowrap}
+tbody tr:hover{background:#f9fbff}
+tbody tr:last-child td{border-bottom:0}
+td.subj{min-width:220px}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12.5px;font-weight:600;background:#eef2f7;color:#374151;white-space:nowrap}
+.b-blue{background:var(--primary-l);color:var(--primary-d)}.b-ok{background:var(--ok-l);color:var(--ok)}
+.b-warn{background:var(--warn-l);color:var(--warn)}.b-bad{background:var(--bad-l);color:var(--bad)}.b-gray{background:#eef0f3;color:#6b7280}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 2px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.pager .pg{display:flex;gap:4px}
+.empty{text-align:center;padding:38px 10px;color:var(--muted)}
+.empty .e-ico{font-size:34px}
+.error-state{background:var(--bad-l);color:var(--bad);border-radius:10px;padding:14px;margin-bottom:12px}
+.notice{background:var(--warn-l);color:#8a4b00;border:1px solid #f6d7a7;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:14px}
+.info{background:var(--primary-l);color:var(--primary-d);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:14px}
+.kv{display:grid;grid-template-columns:170px 1fr;gap:6px 12px;font-size:14px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;word-break:break-word}
+.timeline{list-style:none;padding:0;margin:0;font-size:13.5px}
+.timeline li{padding:6px 0 6px 14px;border-left:2px solid var(--line);position:relative}
+.timeline li:before{content:'';position:absolute;left:-5px;top:12px;width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.progress{height:8px;background:#e9eef6;border-radius:6px;overflow:hidden;min-width:80px}
+.progress span{display:block;height:100%;background:var(--primary)}
+.chart{width:100%;height:auto}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.list-plain{list-style:none;margin:0;padding:0}
+.list-plain li{padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.list-plain li:last-child{border:0}
+.check-list{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.check-list label{display:flex;gap:8px;padding:4px 0;font-weight:400}
+
+/* ---------- Modal / Toast / Loading ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 14px;z-index:80;overflow-y:auto}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:720px;box-shadow:0 20px 50px rgba(0,0,0,.2)}
+.modal.sm{max-width:430px}
+.modal-h{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.modal-h h2{margin:0;font-size:17px}
+.modal-x{background:none;border:0;font-size:22px;cursor:pointer;color:var(--muted)}
+.modal-b{padding:18px 20px}
+.modal-f{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--line);flex-wrap:wrap}
+.toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:100;max-width:calc(100% - 32px)}
+.toast{background:#1f2937;color:#fff;padding:11px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2);font-size:14.5px;border-left:5px solid var(--accent);animation:tin .2s}
+.toast.ok{border-color:#34c759}.toast.bad{border-color:#ff6b5e}.toast.warn{border-color:#ffb020}
+@keyframes tin{from{transform:translateY(10px);opacity:0}}
+.loading{position:fixed;inset:0;background:rgba(255,255,255,.65);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:90;font-weight:600;color:var(--primary-d)}
+.spin{width:42px;height:42px;border:4px solid var(--primary-l);border-top-color:var(--primary);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:64px}
+.pw-wrap button{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--primary);cursor:pointer;font-size:13px}
+.login-hero{text-align:center;margin-bottom:10px}
+.login-hero .logo{width:56px;height:56px;border-radius:14px;background:var(--primary);color:#fff;display:inline-grid;place-items:center;font-size:26px}
+.guest-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border-radius:var(--radius);padding:18px 20px;margin-bottom:16px}
+.guest-banner h2{margin:0 0 4px;font-size:19px}
+.guest-banner .btn{background:#fff;color:var(--primary-d)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:960px){
+  .two{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .sidebar{transform:translateX(-100%)}
+  body.nav-open .sidebar{transform:none}
+  body.nav-open .backdrop{display:block;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:35}
+  .main{margin-left:0}
+  .menu-btn{display:block}
+  .user-chip .uname{display:none}
+  .content{padding:14px}
+  .form-grid{grid-template-columns:1fr}
+  .kv{grid-template-columns:1fr}
+  .kv dt{font-weight:600;color:var(--text)}
+  .topbar{padding:0 12px}
+}
+@media print{
+  .sidebar,.topbar,.toolbar,.pager,.no-print,.toasts{display:none!important}
+  .main{margin:0}.content{padding:0}
+  .table-wrap{border:0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><b>📨 E-Saraban</b><small>ระบบสารบรรณอิเล็กทรอนิกส์<br>สสอ.กู่แก้ว จ.อุดรธานี</small></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidebar-foot">เวอร์ชัน 1.0.0</div>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="เปิดเมนู">☰</button>
+      <h1 id="pageTitle">แดชบอร์ด</h1>
+      <div class="user-chip hidden" id="userChip">
+        <div class="avatar" id="userAvatar">?</div>
+        <div class="uname"><div id="userName"></div><small class="muted" id="userRole" style="color:var(--muted)"></small></div>
+        <button class="btn sec sm" id="logoutBtn">ออกจากระบบ</button>
+      </div>
+      <button class="btn" id="loginBtn">เข้าสู่ระบบ</button>
+    </header>
+    <main class="content" id="content" aria-live="polite"></main>
+  </div>
+</div>
+<div id="modalRoot"></div>
+<div class="toasts" id="toasts"></div>
+<div class="loading hidden" id="loading"><div class="spin"></div><div id="loadingText">กำลังโหลดข้อมูล...</div></div>
+
+<script>
+/* =====================================================================
+   CONFIG — แก้ไขจุดเดียว: ใส่ Web App URL (ลงท้าย /exec)
+   * ถ้าเปิดหน้านี้ผ่าน Web App URL ของ Apps Script (แนะนำ) ไม่ต้องแก้ค่านี้
+     ระบบจะใช้ google.script.run อัตโนมัติ
+   * ใช้ค่านี้เฉพาะกรณีเปิด index.html จากโฮสต์ภายนอก (โหมด Standalone)
+   ===================================================================== */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwKUc40cMKFdBpnk9C8IS5WGCq-H_MatI3zSI_zDBY7ENfk_zNhKqlRzPKLVwLQmfF2/exec";
+
+/* ---------- ค่าคงที่ (ต้องตรงกับ Code.gs) ---------- */
+const DOC_TYPES = ['บันทึก','หนังสือราชการภายนอก','หนังสือราชการภายใน','ประกาศ','คำสั่ง','ระเบียบ','หนังสือเวียน','รายงาน','อื่นๆ'];
+const URGENCY = ['ปกติ','ด่วน','ด่วนมาก','ด่วนที่สุด'];
+const SECRET = ['ปกติ','ลับ','ลับมาก','ลับที่สุด'];
+const PRIORITY = ['สูง','กลาง','ต่ำ'];
+const STATUS_INCOMING = ['รับใหม่','รอสั่งการ/ลงนาม','สั่งการแล้ว'];
+const STATUS_OUTGOING = ['ร่าง','รอเสนอ','รอพิจารณา','รอลงนาม','ลงนามแล้ว','ส่งแล้ว','ส่งกลับแก้ไข','ยกเลิก'];
+const STATUS_TASK = ['มอบหมายแล้ว','กำลังดำเนินการ','รอผลตรวจสอบ','เสร็จสิ้น','ส่งกลับแก้ไข','ยกเลิก'];
+const DIRECTOR_STATUS = ['สั่งการแล้ว','เสร็จสิ้น','รอลงนาม','ลงนามแล้ว','ส่งกลับแก้ไข'];
+const ROLE_LABEL = { admin:'ผู้ดูแลระบบ', director:'ผู้บริหาร', officer:'เจ้าหน้าที่', viewer:'ผู้ดูข้อมูล' };
+const PAGE_SIZE = 20;
+
+/* =====================================================================
+   API LAYER
+   - เสิร์ฟผ่าน HtmlService → google.script.run.handleApiCall (ไม่มีปัญหา CORS)
+   - เปิดแบบ Standalone → fetch POST ด้วย Content-Type text/plain
+     (เป็น simple request จึงไม่มี preflight; GAS จะ redirect ไป googleusercontent
+      และเบราว์เซอร์อ่านผลได้ — ต้องทดสอบกับ Deployment จริงก่อนใช้งาน)
+   ===================================================================== */
+const IS_GAS = (function(){ try { return typeof google !== 'undefined' && google.script && google.script.run; } catch(e){ return false; } })();
+
+function rawCall(payload){
+  if (IS_GAS) {
+    return new Promise(function(resolve, reject){
+      google.script.run
+        .withSuccessHandler(function(res){ resolve(res); })
+        .withFailureHandler(function(err){ reject(err); })
+        .handleApiCall(payload);
+    });
+  }
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/(exec|dev)$/.test(GAS_URL)) {
+    return Promise.reject(new Error('CONFIG'));
+  }
+  return fetch(GAS_URL, {
+    method:'POST', redirect:'follow', cache:'no-store',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+}
+
+/** เรียก API พร้อม loading, จัดการ error กลาง — คืนค่า data เมื่อสำเร็จ หรือ throw */
+async function api(action, params, opt){
+  opt = opt || {};
+  const payload = Object.assign({}, params || {}, { action: action, sessionToken: Store.token() });
+  if (opt.loading !== false) UI.loading(true, opt.loadingText || 'กำลังโหลดข้อมูล...');
+  try {
+    const res = await rawCall(payload);
+    if (!res || typeof res !== 'object' || typeof res.ok !== 'boolean') throw new Error('BAD_RESPONSE');
+    if (!res.ok) {
+      if (res.code === 'SESSION_EXPIRED' || res.code === 'ACCOUNT_INACTIVE') { Auth.clearLocal(); UI.toast(res.message, 'bad'); Auth.openLogin(); Router.go('dashboard'); }
+      else if (res.code === 'MUST_CHANGE_PASSWORD') { Auth.openChangePassword(true); }
+      const e = new Error(res.message || 'ไม่สามารถดำเนินการได้'); e.code = res.code; e.handled = ['SESSION_EXPIRED','ACCOUNT_INACTIVE','MUST_CHANGE_PASSWORD'].indexOf(res.code) >= 0;
+      throw e;
+    }
+    if (res.message && opt.toast !== false) UI.toast(res.message, 'ok');
+    return res.data;
+  } catch (err) {
+    if (!err.code) {
+      const msg = err.message === 'CONFIG' ? 'ยังไม่ได้ตั้งค่า GAS_URL ในไฟล์ index.html' :
+                  /not found|setupSheet|Spreadsheet/i.test(err.message || '') ? 'ระบบฐานข้อมูลยังไม่ได้ตั้งค่า' :
+                  'ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองอีกครั้ง' + (err.message ? ' (' + String(err.message).slice(0, 200) + ')' : '');
+      const e2 = new Error(msg); e2.code = 'NETWORK'; throw e2;
+    }
+    throw err;
+  } finally {
+    if (opt.loading !== false) UI.loading(false);
+  }
+}
+
+/** ใช้กับปุ่ม: ป้องกันกดซ้ำและแสดง error เป็น toast */
+async function runAction(btn, fn){
+  if (btn) { if (btn.disabled) return; btn.disabled = true; }
+  try { return await fn(); }
+  catch (e) { if (!e.handled) UI.toast(e.message, 'bad'); }
+  finally { if (btn) btn.disabled = false; }
+}
+
+/* =====================================================================
+   STORE — เก็บ token ใน sessionStorage (ปิดแท็บแล้วหมด) ไม่เก็บข้อมูลเอกสาร
+   ===================================================================== */
+const Store = {
+  user: null,
+  token(){ try { return sessionStorage.getItem('es_token') || ''; } catch(e){ return Store._t || ''; } },
+  set(token, user){ Store._t = token; Store.user = user; try { sessionStorage.setItem('es_token', token); sessionStorage.setItem('es_user', JSON.stringify(user)); } catch(e){} },
+  load(){ try { const u = sessionStorage.getItem('es_user'); Store.user = u ? JSON.parse(u) : null; } catch(e){ Store.user = null; } },
+  clear(){ Store._t = ''; Store.user = null; try { sessionStorage.removeItem('es_token'); sessionStorage.removeItem('es_user'); } catch(e){} },
+  role(){ return Store.user ? Store.user.role : null; },
+  is(){ const r = Store.role(); return Array.prototype.slice.call(arguments).indexOf(r) >= 0; }
+};
+
+/* =====================================================================
+   DOM HELPERS — สร้าง element ด้วย textContent เสมอ (ป้องกัน XSS)
+   ===================================================================== */
+function h(tag, attrs){
+  const el = document.createElement(tag);
+  if (attrs) Object.keys(attrs).forEach(function(k){
+    const v = attrs[k];
+    if (v === null || v === undefined || v === false) return;
+    if (k === 'class') el.className = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k.indexOf('on') === 0 && typeof v === 'function') el.addEventListener(k.slice(2), v);
+    else if (k === 'style') el.setAttribute('style', v);
+    else if (k in el && typeof v !== 'string') el[k] = v;
+    else el.setAttribute(k, v === true ? '' : String(v));
+  });
+  for (let i = 2; i < arguments.length; i++) append(el, arguments[i]);
+  return el;
+}
+function append(el, c){
+  if (c === null || c === undefined || c === false) return;
+  if (Array.isArray(c)) { c.forEach(function(x){ append(el, x); }); return; }
+  el.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
+}
+function clear(el){ while (el.firstChild) el.removeChild(el.firstChild); return el; }
+function $(id){ return document.getElementById(id); }
+
+/** ลิงก์ภายนอก: อนุญาตเฉพาะ https */
+function safeLink(url, label){
+  const u = String(url || '').trim();
+  if (!/^https:\/\//i.test(u)) return h('span', { class:'muted', text: u ? '(ลิงก์ไม่ปลอดภัย)' : '-' });
+  return h('a', { href:u, target:'_blank', rel:'noopener noreferrer', text: label || 'เปิดเอกสาร ↗' });
+}
+
+/* =====================================================================
+   DATE — แสดงผลแบบไทย พ.ศ. เขตเวลา Asia/Bangkok
+   ===================================================================== */
+const TZ = 'Asia/Bangkok';
+function parseDate(v){
+  if (!v) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) v = v + 'T00:00:00+07:00';
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? null : d;
+}
+function fmtDate(v){ const d = parseDate(v); return d ? d.toLocaleDateString('th-TH', { timeZone:TZ, day:'numeric', month:'short', year:'numeric' }) : '-'; }
+function fmtDateTime(v){ const d = parseDate(v); return d ? d.toLocaleString('th-TH', { timeZone:TZ, day:'numeric', month:'short', year:'2-digit', hour:'2-digit', minute:'2-digit' }) + ' น.' : '-'; }
+/** yyyy-mm-dd ตามเวลาไทย สำหรับใส่ใน input[type=date] */
+function isoDay(v){ const d = v ? parseDate(v) : new Date(); if (!d) return ''; return new Intl.DateTimeFormat('en-CA', { timeZone:TZ, year:'numeric', month:'2-digit', day:'2-digit' }).format(d); }
+function thaiFiscalRange(beYear){ const y = beYear - 543; return { from:(y-1) + '-10-01', to: y + '-09-30' }; }
+function currentFiscalBE(){ const t = isoDay(); const y = +t.slice(0,4), m = +t.slice(5,7); return (m >= 10 ? y + 1 : y) + 543; }
+
+/* =====================================================================
+   BADGES
+   ===================================================================== */
+function statusBadge(s){
+  const map = { 'สั่งการแล้ว':'b-ok','รับใหม่':'b-bad','เสร็จสิ้น':'b-ok','ส่งแล้ว':'b-ok','ลงนามแล้ว':'b-ok','รับทราบแล้ว':'b-ok','ดำเนินการแล้ว':'b-ok',
+    'เกินกำหนด':'b-bad','ยกเลิก':'b-gray','ส่งกลับแก้ไข':'b-bad','ยังไม่เปิดอ่าน':'b-warn',
+    'ใกล้ครบกำหนด':'b-warn','รอสั่งการ/ลงนาม':'b-bad','รอเสนอ':'b-warn','รอพิจารณา':'b-warn','รอลงนาม':'b-warn','รอรับทราบ':'b-warn','รอตรวจสอบ':'b-warn','รอผลตรวจสอบ':'b-warn','ร่าง':'b-gray' };
+  return h('span', { class:'badge ' + (map[s] || 'b-blue'), text: s || '-' });
+}
+function urgencyBadge(u){ return u && u !== 'ปกติ' ? h('span', { class:'badge b-bad', text:u }) : h('span', { class:'badge b-gray', text: u || 'ปกติ' }); }
+function secretBadge(s){ return s && s !== 'ปกติ' ? h('span', { class:'badge b-warn', text:'🔒 ' + s }) : null; }
+
+/* =====================================================================
+   UI: toast / loading / modal / confirm / pager / table / empty
+   ===================================================================== */
+const UI = {
+  _loadCount: 0,
+  loading(on, text){
+    UI._loadCount = Math.max(0, UI._loadCount + (on ? 1 : -1));
+    if (on && text) $('loadingText').textContent = text;
+    $('loading').classList.toggle('hidden', UI._loadCount === 0);
+  },
+  toast(msg, type){
+    if (!msg) return;
+    const t = h('div', { class:'toast ' + (type || ''), role:'status', text: msg });
+    $('toasts').appendChild(t);
+    setTimeout(function(){ t.remove(); }, type === 'bad' ? 6000 : 3500);
+  },
+  /** เปิด modal: คืน { close, body, foot } */
+  modal(title, opt){
+    opt = opt || {};
+    const body = h('div', { class:'modal-b' });
+    const foot = h('div', { class:'modal-f' });
+    const bg = h('div', { class:'modal-bg', role:'dialog', 'aria-modal':'true' });
+    const close = function(){ bg.remove(); document.removeEventListener('keydown', onKey); if (opt.onClose) opt.onClose(); };
+    const onKey = function(e){ if (e.key === 'Escape' && !opt.locked) close(); };
+    const box = h('div', { class:'modal' + (opt.size === 'sm' ? ' sm' : '') },
+      h('div', { class:'modal-h' }, h('h2', { text:title }), opt.locked ? null : h('button', { class:'modal-x', 'aria-label':'ปิด', onclick:close, text:'×' })),
+      body, foot);
+    bg.appendChild(box);
+    // ปิดเมื่อกดและปล่อยบนพื้นหลังจริง ๆ — ไม่นับการลากแถบเลื่อน (ฟอร์มยาว) หรือการลากเลือกข้อความออกนอกกรอบ
+    let downOnBg = false;
+    if (!opt.locked) {
+      bg.addEventListener('mousedown', function(e){ downOnBg = e.target === bg && e.clientX < bg.clientWidth; });
+      bg.addEventListener('click', function(e){ if (downOnBg && e.target === bg) close(); downOnBg = false; });
+    }
+    document.addEventListener('keydown', onKey);
+    $('modalRoot').appendChild(bg);
+    return { close: close, body: body, foot: foot };
+  },
+  confirm(title, message, opt){
+    opt = opt || {};
+    return new Promise(function(resolve){
+      let done = false;
+      const m = UI.modal(title, { size:'sm', onClose: function(){ if (!done) resolve(null); } });
+      m.body.appendChild(h('p', { text: message, style:'margin-top:0' }));
+      let reason = null;
+      if (opt.reason) {
+        reason = h('textarea', { rows:3, maxlength:500, placeholder:'ระบุเหตุผล (จำเป็น)' });
+        m.body.appendChild(h('div', { class:'field' }, h('label', { text:'เหตุผล' }), reason));
+      }
+      m.foot.appendChild(h('button', { class:'btn sec', text:'ยกเลิก', onclick: function(){ m.close(); } }));
+      m.foot.appendChild(h('button', { class:'btn ' + (opt.danger ? 'bad' : ''), text: opt.okText || 'ยืนยัน', onclick: function(){
+        if (reason && !reason.value.trim()) { UI.toast('กรุณาระบุเหตุผล', 'warn'); reason.focus(); return; }
+        done = true; m.close(); resolve(reason ? reason.value.trim() : true);
+      }}));
+    });
+  },
+  empty(text){ return h('div', { class:'empty' }, h('div', { class:'e-ico', text:'📭' }), h('div', { text: text || 'ยังไม่มีข้อมูลในระบบ' })); },
+  errorBox(msg, retry){ return h('div', { class:'error-state' }, h('b', { text:'เกิดข้อผิดพลาด: ' }), msg, ' ', retry ? h('button', { class:'btn sm sec', text:'ลองใหม่', onclick:retry }) : null); },
+  /** columns: [{label, render(row) | key}] */
+  table(columns, rows, emptyText){
+    if (!rows || !rows.length) return UI.empty(emptyText);
+    return h('div', { class:'table-wrap' }, h('table', null,
+      h('thead', null, h('tr', null, columns.map(function(c){ return h('th', { text:c.label }); }))),
+      h('tbody', null, rows.map(function(r){
+        return h('tr', null, columns.map(function(c){
+          const v = c.render ? c.render(r) : (r[c.key] === '' || r[c.key] === undefined ? '-' : r[c.key]);
+          return h('td', { class: c.cls || null }, v);
+        }));
+      }))));
+  },
+  pager(total, page, pageSize, onPage){
+    const pages = Math.max(1, Math.ceil(total / pageSize));
+    const from = total ? (page - 1) * pageSize + 1 : 0, to = Math.min(total, page * pageSize);
+    return h('div', { class:'pager' },
+      h('span', { text: 'แสดง ' + from + '–' + to + ' จาก ' + total + ' รายการ' }),
+      h('div', { class:'pg' },
+        h('button', { class:'btn sec sm', text:'‹ ก่อนหน้า', disabled: page <= 1, onclick: function(){ onPage(page - 1); } }),
+        h('span', { style:'padding:4px 8px', text: 'หน้า ' + page + '/' + pages }),
+        h('button', { class:'btn sec sm', text:'ถัดไป ›', disabled: page >= pages, onclick: function(){ onPage(page + 1); } })));
+  },
+  section(title, actions){ return h('div', { class:'toolbar' }, h('h2', { class:'grow', style:'margin:0;font-size:19px', text:title }), actions || null); },
+  kv(pairs){ const dl = h('dl', { class:'kv' }); pairs.forEach(function(p){ if (p) { dl.appendChild(h('dt', { text:p[0] })); dl.appendChild(h('dd', null, p[1] === '' || p[1] === undefined || p[1] === null ? '-' : p[1])); } }); return dl; },
+  history(list){
+    if (!list || !list.length) return h('p', { class:'muted', text:'ยังไม่มีประวัติ' });
+    return h('ul', { class:'timeline' }, list.map(function(x){ return h('li', null, h('b', { text: fmtDateTime(x.timestamp) }), ' — ', x.username + ' : ' + actionLabel(x.action) + (x.detail ? ' (' + x.detail + ')' : '')); }));
+  }
+};
+function actionLabel(a){
+  const m = { CREATE_INCOMING:'ลงทะเบียนรับ', UPDATE_INCOMING:'แก้ไข/เปลี่ยนสถานะ', DELETE_INCOMING:'ยกเลิก', CREATE_OUTGOING:'สร้างหนังสือส่ง', UPDATE_OUTGOING:'แก้ไข/เปลี่ยนสถานะ', DELETE_OUTGOING:'ยกเลิก',
+    CREATE_TASK:'มอบหมายงาน', UPDATE_TASK:'แก้ไขงาน', UPDATE_TASK_STATUS:'เปลี่ยนสถานะงาน', LOGIN_SUCCESS:'เข้าสู่ระบบ', LOGIN_FAIL:'เข้าสู่ระบบไม่สำเร็จ', LOGIN_BLOCKED:'ถูกล็อกชั่วคราว', LOGOUT:'ออกจากระบบ',
+    CHANGE_PW:'เปลี่ยนรหัสผ่าน', CHANGE_PW_FAIL:'เปลี่ยนรหัสผ่านไม่สำเร็จ', CREATE_USER:'สร้างผู้ใช้', UPDATE_USER:'แก้ไขผู้ใช้', RESET_PASSWORD:'รีเซ็ตรหัสผ่าน', ENABLE_USER:'เปิดใช้บัญชี', DISABLE_USER:'ระงับบัญชี',
+    CREATE_CIRCULAR:'สร้างหนังสือเวียน', CIRCULAR_READ:'เปิดอ่าน', CIRCULAR_ACKNOWLEDGE:'รับทราบ', CIRCULAR_DONE:'ดำเนินการแล้ว', CIRCULAR_CANCEL:'ยกเลิกผู้รับ', CIRCULAR_REMIND:'แจ้งเตือนซ้ำ', UPDATE_SETTINGS:'แก้ไขการตั้งค่า', UPLOAD_FILE:'อัปโหลดไฟล์' };
+  return m[a] || a;
+}
+
+/* =====================================================================
+   FORM BUILDER + VALIDATION (Backend ตรวจซ้ำเสมอ)
+   field: { name, label, type, options, required, max, full, min, placeholder, help }
+   ===================================================================== */
+function buildForm(fields, values){
+  values = values || {};
+  const form = h('form', { class:'form-grid', novalidate:true, onsubmit: function(e){ e.preventDefault(); } });
+  fields.forEach(function(f){
+    let input;
+    const v = values[f.name] !== undefined && values[f.name] !== null ? values[f.name] : (f.value !== undefined ? f.value : '');
+    if (f.type === 'select') {
+      input = h('select', { name:f.name }, f.required ? null : h('option', { value:'', text:'— เลือก —' }),
+        (f.options || []).map(function(o){ const val = typeof o === 'object' ? o.value : o, lab = typeof o === 'object' ? o.label : o; return h('option', { value:val, text:lab, selected: String(v) === String(val) }); }));
+      if (f.required && !v && f.options && f.options.length) input.value = typeof f.options[0] === 'object' ? f.options[0].value : f.options[0];
+    } else if (f.type === 'textarea') {
+      input = h('textarea', { name:f.name, rows:f.rows || 3, maxlength:f.max || 2000, placeholder:f.placeholder || '' });
+      input.value = v;
+    } else if (f.type === 'password') {
+      input = h('input', { name:f.name, type:'password', maxlength:f.max || 128, autocomplete: f.autocomplete || 'new-password' });
+      const wrap = h('div', { class:'pw-wrap' }, input, h('button', { type:'button', text:'แสดง', onclick: function(e){ const show = input.type === 'password'; input.type = show ? 'text' : 'password'; e.target.textContent = show ? 'ซ่อน' : 'แสดง'; } }));
+      input._wrap = wrap;
+    } else {
+      input = h('input', { name:f.name, type: f.type === 'url' ? 'url' : (f.type || 'text'), maxlength:f.max || 300, placeholder:f.placeholder || '', min:f.min, max: f.type === 'number' ? f.maxNum : null });
+      input.value = f.type === 'date' ? (v ? isoDay(v) : '') : v;
+    }
+    if (f.readonly) input.disabled = true;
+    const box = h('div', { class:'field' + (f.full ? ' full' : '') },
+      h('label', null, f.label, f.required ? h('span', { class:'req', text:' *' }) : null),
+      input._wrap || input,
+      f.help ? h('small', { style:'color:var(--muted)', text:f.help }) : null,
+      h('div', { class:'msg' }));
+    box.dataset.name = f.name;
+    form.appendChild(box);
+  });
+  form._fields = fields;
+  return form;
+}
+
+/** ตรวจฟอร์ม: คืน values หรือ null พร้อมแสดงข้อความใกล้ช่อง */
+function readForm(form){
+  const values = {}; let ok = true, first = null;
+  form._fields.forEach(function(f){
+    if (f.readonly) return;
+    const box = form.querySelector('[data-name="' + f.name + '"]');
+    const el = form.elements[f.name];
+    let v = (el.value || '').trim();
+    let err = '';
+    if (f.required && !v) err = 'กรุณากรอก' + f.label;
+    else if (v && f.max && v.length > f.max) err = 'ความยาวต้องไม่เกิน ' + f.max + ' ตัวอักษร';
+    else if (v && f.type === 'date' && (!/^\d{4}-\d{2}-\d{2}$/.test(v) || !parseDate(v))) err = 'รูปแบบวันที่ไม่ถูกต้อง';
+    else if (v && f.type === 'url' && !/^https:\/\/[^\s]+$/i.test(v)) err = 'ลิงก์ต้องขึ้นต้นด้วย https://';
+    else if (v && f.type === 'select' && f.options && !f.options.some(function(o){ return String(typeof o === 'object' ? o.value : o) === v; })) err = 'ค่าที่เลือกไม่ถูกต้อง';
+    else if (v && f.type === 'number' && (isNaN(+v) || (f.min !== undefined && +v < f.min) || (f.maxNum !== undefined && +v > f.maxNum))) err = 'ตัวเลขไม่ถูกต้อง';
+    else if (v && f.pattern && !f.pattern.test(v)) err = f.patternMsg || 'รูปแบบไม่ถูกต้อง';
+    if (!err && f.validate) err = f.validate(v, form) || '';
+    box.classList.toggle('invalid', !!err);
+    box.querySelector('.msg').textContent = err;
+    if (err) { ok = false; if (!first) first = el; }
+    values[f.name] = f.type === 'number' && v !== '' ? +v : v;
+  });
+  if (!ok) { first.focus(); UI.toast('พบข้อมูลไม่ครบถ้วน กรุณาตรวจสอบช่องที่มีเครื่องหมายสีแดง', 'warn'); return null; }
+  return values;
+}
+
+/** แสดงฟอร์มใน modal; onSave(values) คืน Promise */
+function formModal(title, fields, values, onSave, saveText){
+  const m = UI.modal(title);
+  const form = buildForm(fields, values);
+  m.body.appendChild(form);
+  const saveBtn = h('button', { class:'btn', text: saveText || 'บันทึก' });
+  saveBtn.addEventListener('click', function(){
+    const v = readForm(form); if (!v) return;
+    runAction(saveBtn, async function(){ await onSave(v); m.close(); });
+  });
+  m.foot.appendChild(h('button', { class:'btn sec', text:'ยกเลิก', onclick: function(){ m.close(); } }));
+  m.foot.appendChild(saveBtn);
+  return m;
+}
+
+/* ---------- รายชื่อผู้ใช้ที่ใช้งานอยู่ (สำหรับ dropdown) ---------- */
+let _userCache = null;
+let _userLoading = null;
+async function activeUsers(){
+  if (_userCache) return _userCache;
+  // ใช้คำขอเดียวร่วมกัน ถ้ามีการโหลดค้างอยู่ (ไม่ยิงซ้ำ)
+  if (!_userLoading) _userLoading = api('users.getActive', {}, { loading:false, toast:false }).finally(function(){ _userLoading = null; });
+  const d = await _userLoading;
+  _userCache = d.records || [];
+  return _userCache;
+}
+function userOptions(list){ return list.filter(function(u){ return u.role !== 'admin'; }).map(function(u){ return { value:u.username, label:u.fullName + (u.department ? ' — ' + u.department : '') }; }); }
+function userName(un){ if (!un) return '-'; const u = (_userCache || []).find(function(x){ return x.username === un; }); return u ? u.fullName : un; }
+
+/** ส่งออก CSV (UTF-8 BOM เปิดใน Excel ได้) — ป้องกัน formula injection */
+function downloadCSV(filename, headers, rows){
+  const cell = function(v){ let s = v === null || v === undefined ? '' : String(v); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  const csv = '﻿' + [headers.map(function(x){ return cell(x[1]); }).join(',')].concat(rows.map(function(r){ return headers.map(function(x){ return cell(r[x[0]]); }).join(','); })).join('\r\n');
+  const a = h('a', { href: URL.createObjectURL(new Blob([csv], { type:'text/csv;charset=utf-8' })), download: filename });
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/** ปุ่มเลือกไฟล์: อัปโหลดไป Google Drive แล้วใส่ลิงก์ในช่อง URL ให้อัตโนมัติ */
+const UPLOAD_MAX = 10 * 1024 * 1024;
+function attachUploader(form, fieldName, onDone, onStart){
+  const box = form.querySelector('[data-name="' + fieldName + '"]');
+  const urlInput = form.elements[fieldName];
+  const file = h('input', { type:'file', accept:'.pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx' });
+  const status = h('small', { style:'color:var(--muted)' });
+  file.addEventListener('change', function(){
+    const f = file.files[0]; if (!f) return;
+    if (f.size > UPLOAD_MAX) { UI.toast('ขนาดไฟล์ต้องไม่เกิน 10 MB', 'warn'); file.value = ''; return; }
+    const rd = new FileReader();
+    rd.onerror = function(){ UI.toast('อ่านไฟล์ไม่สำเร็จ', 'bad'); };
+    rd.onload = function(){
+      const b64 = String(rd.result).split(',')[1] || '';
+      runAction(file, async function(){
+        status.textContent = 'กำลังอัปโหลด...';
+        try {
+          const pre = onStart ? onStart(f, b64) : null; // เริ่มอ่านไฟล์พร้อมกับอัปโหลด
+          if (pre) pre.catch(function(){});
+          const d = await api('files.upload', { fileName:f.name, mimeType:f.type, data:b64 }, { loadingText:'กำลังอัปโหลดไฟล์...' });
+          urlInput.value = d.url;
+          status.textContent = '✓ อัปโหลดแล้ว: ' + d.name;
+          if (onDone) { try { await onDone(d, f, pre); } catch (ex) { if (!ex.handled) UI.toast(ex.message, 'warn'); } }
+        } catch (e) { status.textContent = ''; file.value = ''; throw e; }
+      });
+    };
+    rd.readAsDataURL(f);
+  });
+  box.insertBefore(h('div', { style:'display:flex;gap:8px;align-items:center;flex-wrap:wrap' }, file, status), box.querySelector('.msg'));
+}
+/* =====================================================================
+   AUTH
+   ===================================================================== */
+const PW_RULE = /^(?=.*[A-Za-z])(?=.*\d).{8,64}$/;
+const Auth = {
+  openLogin(){
+    if (document.querySelector('[data-login]')) return;
+    const m = UI.modal('เข้าสู่ระบบ', { size:'sm' });
+    m.body.parentNode.parentNode.setAttribute('data-login', '1');
+    m.body.appendChild(h('div', { class:'login-hero' }, h('div', { class:'logo', text:'📨' }), h('h3', { style:'margin:8px 0 0', text:'E-Saraban สสอ.กู่แก้ว' })));
+    const form = buildForm([
+      { name:'username', label:'ชื่อผู้ใช้', required:true, max:30, full:true, pattern:/^[A-Za-z0-9_]{3,30}$/, patternMsg:'ชื่อผู้ใช้ใช้ได้เฉพาะ a-z, 0-9, _' },
+      { name:'password', label:'รหัสผ่าน', type:'password', required:true, max:64, full:true, autocomplete:'current-password' }
+    ]);
+    const err = h('div', { class:'error-state hidden' });
+    m.body.appendChild(err); m.body.appendChild(form);
+    const btn = h('button', { class:'btn', style:'width:100%', type:'submit', text:'เข้าสู่ระบบ' });
+    form.appendChild(h('div', { class:'full' }, btn));
+    const submit = function(e){
+      if (e) e.preventDefault();
+      const v = readForm(form); if (!v) return;
+      err.classList.add('hidden');
+      runAction(btn, async function(){
+        try {
+          const d = await api('auth.login', { username:v.username, password:v.password }, { loadingText:'กำลังตรวจสอบการเข้าสู่ระบบ...', toast:false });
+          Store.set(d.token, { username:d.username, fullName:d.fullName, role:d.role, department:d.department, mustChangePassword:d.mustChangePassword });
+          m.close();
+          UI.toast('เข้าสู่ระบบสำเร็จ', 'ok');
+          Shell.render();
+          Router.go('dashboard');
+        } catch (ex) { err.textContent = ex.message; err.classList.remove('hidden'); ex.handled = true; throw ex; }
+      });
+    };
+    form.addEventListener('submit', submit);
+    setTimeout(function(){ form.elements.username.focus(); }, 50);
+  },
+  openChangePassword(forced){
+    if (document.querySelector('[data-chpw]')) return;
+    const m = UI.modal(forced ? 'กรุณาเปลี่ยนรหัสผ่านก่อนใช้งาน' : 'เปลี่ยนรหัสผ่าน', { size:'sm', locked: !!forced });
+    m.body.parentNode.parentNode.setAttribute('data-chpw', '1');
+    if (forced) m.body.appendChild(h('div', { class:'notice', text:'บัญชีนี้ใช้รหัสผ่านเริ่มต้นหรือถูกรีเซ็ต ต้องตั้งรหัสผ่านใหม่ก่อนเข้าถึงข้อมูลราชการ' }));
+    const form = buildForm([
+      { name:'currentPassword', label:'รหัสผ่านปัจจุบัน', type:'password', required:true, full:true, autocomplete:'current-password' },
+      { name:'newPassword', label:'รหัสผ่านใหม่', type:'password', required:true, full:true, max:64, pattern:PW_RULE, patternMsg:'อย่างน้อย 8 ตัว และมีทั้งตัวอักษรและตัวเลข', help:'อย่างน้อย 8 ตัวอักษร มีทั้งตัวอักษรและตัวเลข', validate: function(v, f){ return v === f.elements.currentPassword.value ? 'รหัสผ่านใหม่ต้องไม่ซ้ำรหัสเดิม' : ''; } },
+      { name:'confirm', label:'ยืนยันรหัสผ่านใหม่', type:'password', required:true, full:true, validate: function(v, f){ return v !== f.elements.newPassword.value ? 'รหัสผ่านยืนยันไม่ตรงกัน' : ''; } }
+    ]);
+    m.body.appendChild(form);
+    const btn = h('button', { class:'btn', text:'บันทึกรหัสผ่านใหม่' });
+    btn.addEventListener('click', function(){
+      const v = readForm(form); if (!v) return;
+      runAction(btn, async function(){
+        await api('auth.changePassword', { currentPassword:v.currentPassword, newPassword:v.newPassword }, { loadingText:'กำลังบันทึกข้อมูล...' });
+        if (Store.user) { Store.user.mustChangePassword = false; Store.set(Store.token(), Store.user); }
+        m.close(); Router.go('dashboard');
+      });
+    });
+    if (forced) m.foot.appendChild(h('button', { class:'btn sec', text:'ออกจากระบบ', onclick: function(){ m.close(); Auth.logout(); } }));
+    else m.foot.appendChild(h('button', { class:'btn sec', text:'ยกเลิก', onclick: function(){ m.close(); } }));
+    m.foot.appendChild(btn);
+  },
+  async logout(){
+    try { await api('auth.logout', {}, { loadingText:'กำลังออกจากระบบ...', toast:false }); } catch (e) { /* ยกเลิกฝั่งเครื่องต่อแม้เครือข่ายล้มเหลว */ }
+    Auth.clearLocal();
+    UI.toast('ออกจากระบบสำเร็จ', 'ok');
+    Router.go('dashboard');
+  },
+  clearLocal(){ Store.clear(); _userCache = null; Shell.render(); },
+  async restore(){
+    Store.load();
+    if (!Store.token()) { Store.clear(); return; }
+    try {
+      const d = await api('auth.validateSession', {}, { loading:false, toast:false });
+      Store.user = Object.assign({}, Store.user || {}, d);
+      Store.set(Store.token(), Store.user);
+    } catch (e) { Store.clear(); }
+  }
+};
+
+/* =====================================================================
+   SHELL + ROUTER
+   ===================================================================== */
+const PAGES = {
+  dashboard: { title:'แดชบอร์ด', icon:'📊', public:true, render: function(c){ return Dashboard.render(c); } },
+  incoming:  { title:'ทะเบียนหนังสือรับ', icon:'📥', render: function(c){ return Incoming.render(c); } },
+  outgoing:  { title:'ทะเบียนหนังสือส่ง', icon:'📤', render: function(c){ return Outgoing.open('outgoing', c); } },
+  out_ext:   { title:'ทะเบียนหนังสือส่งภายนอก', icon:'📤', docType:'หนังสือราชการภายนอก', render: function(c){ return Outgoing.open('out_ext', c); } },
+  out_int:   { title:'ทะเบียนหนังสือส่งภายใน', icon:'📨', docType:'หนังสือราชการภายใน', render: function(c){ return Outgoing.open('out_int', c); } },
+  orders:    { title:'ทะเบียนคำสั่ง', icon:'📜', docType:'คำสั่ง', render: function(c){ return Outgoing.open('orders', c); } },
+  announce:  { title:'ทะเบียนประกาศ', icon:'📢', docType:'ประกาศ', render: function(c){ return Outgoing.open('announce', c); } },
+  circulars: { title:'หนังสือเวียน', icon:'🔁', render: function(c){ return Circulars.render(c); } },
+  reports:   { title:'รายงาน', icon:'📈', roles:['admin','director'], render: function(c){ return Reports.render(c); } },
+  users:     { title:'จัดการผู้ใช้', icon:'👥', roles:['admin'], render: function(c){ return Users.render(c); } },
+  settings:  { title:'ตั้งค่าระบบ', icon:'⚙️', roles:['admin'], render: function(c){ return Settings.render(c); } }
+};
+const NAV_SECTIONS = [['ภาพรวม', ['dashboard']], ['งานสารบรรณ', ['incoming','out_ext','out_int','orders','announce','circulars']], ['บริหาร', ['reports','users','settings']]];
+
+const Shell = {
+  render(){
+    const u = Store.user;
+    $('loginBtn').classList.toggle('hidden', !!u);
+    $('userChip').classList.toggle('hidden', !u);
+    if (u) {
+      $('userName').textContent = u.fullName || u.username;
+      $('userRole').textContent = ROLE_LABEL[u.role] || u.role;
+      $('userAvatar').textContent = (u.fullName || u.username || '?').trim().charAt(0);
+    }
+    const nav = clear($('nav'));
+    NAV_SECTIONS.forEach(function(sec){
+      const items = sec[1].filter(function(k){ const p = PAGES[k]; return p.public || (u && (!p.roles || p.roles.indexOf(u.role) >= 0)); });
+      if (!items.length) return;
+      nav.appendChild(h('div', { class:'sec', text:sec[0] }));
+      items.forEach(function(k){ nav.appendChild(h('button', { 'data-page':k, class: Router.current === k ? 'active' : '', onclick: function(){ Router.go(k); } }, h('span', { class:'ico', text:PAGES[k].icon }), PAGES[k].title)); });
+    });
+    if (u) {
+      activeUsers().catch(function(){}); // โหลดรายชื่อผู้ใช้ล่วงหน้า หน้าอื่นจะเปิดได้ทันที
+      nav.appendChild(h('div', { class:'sec', text:'บัญชี' }));
+      nav.appendChild(h('button', { onclick: function(){ Auth.openChangePassword(false); } }, h('span', { class:'ico', text:'🔑' }), 'เปลี่ยนรหัสผ่าน'));
+    }
+  },
+  setBell(n){ const d = $('bellDot'); if (!d) return; d.textContent = n > 99 ? '99+' : String(n); d.classList.toggle('hidden', !n); },
+  notify: { waitAssign:0, unack:0 },
+  /** ดึงจำนวนแจ้งเตือน — แจ้งสาธารณสุขอำเภอเมื่อมีหนังสือรับใหม่รอลงนามมอบหมาย */
+  async refreshBell(){
+    if (!Store.user || !$('bellDot')) return; // ไม่มีกระดิ่งบนหน้าจอ → ไม่ต้องเรียกเซิร์ฟเวอร์
+    try {
+      const n = await api('notify.count', {}, { loading:false, toast:false });
+      const prev = Shell.notify.waitAssign;
+      Shell.notify = n;
+      Shell.setBell((n.waitAssign || 0) + (n.unack || 0));
+      if (n.waitAssign > prev && prev >= 0 && Shell._bellInit) UI.toast('📥 มีหนังสือรับใหม่ ' + n.waitAssign + ' เรื่อง รอสาธารณสุขอำเภอลงนามมอบหมาย', 'warn');
+      Shell._bellInit = true;
+    } catch (e) {}
+  },
+  openBell(){
+    const n = Shell.notify;
+    if (Store.is('admin','director') && n.waitAssign) { Incoming.state = { page:1, f:{ waitAssign:true } }; Router.go('incoming'); UI.toast('หนังสือรับใหม่ ' + n.waitAssign + ' เรื่อง รอลงนามมอบหมาย — กด "ดู" แล้วกด ✍️ ลงนามมอบหมาย', 'warn'); }
+    else Router.go('circulars');
+  }
+};
+
+const Router = {
+  current: 'dashboard',
+  go(key){
+    if (key === 'outgoing' && Outgoing.page) key = Outgoing.page; // กลับไปทะเบียนส่งที่เปิดอยู่
+    const p = PAGES[key] || PAGES.dashboard;
+    if (!p.public && !Store.user) { UI.toast('กรุณาเข้าสู่ระบบก่อนใช้งานเมนูนี้', 'warn'); Auth.openLogin(); key = 'dashboard'; }
+    else if (p.roles && p.roles.indexOf(Store.role()) < 0) { UI.toast('ไม่มีสิทธิ์ดำเนินการนี้', 'bad'); key = 'dashboard'; }
+    Router.current = key;
+    $('pageTitle').textContent = PAGES[key].title;
+    document.querySelectorAll('#nav button[data-page]').forEach(function(b){ b.classList.toggle('active', b.dataset.page === key); });
+    document.body.classList.remove('nav-open');
+    const c = clear($('content'));
+    Promise.resolve(PAGES[key].render(c)).catch(function(e){ if (!e.handled) c.appendChild(UI.errorBox(e.message, function(){ Router.go(key); })); });
+  }
+};
+
+/* =====================================================================
+   DASHBOARD
+   ===================================================================== */
+const Dashboard = {
+  filters: {},
+  async render(c){
+    if (!Store.user) return Dashboard.renderPublic(c);
+    const f = Dashboard.filters;
+    const fyNow = currentFiscalBE();
+    const fy = h('select', null, h('option', { value:'', text:'ทุกปีงบประมาณ' }), [0,1,2,3].map(function(i){ return h('option', { value: fyNow - i, text:'ปีงบ ' + (fyNow - i), selected: String(f.fy) === String(fyNow - i) }); }));
+    const df = h('input', { type:'date', value:f.dateFrom || '' }), dt = h('input', { type:'date', value:f.dateTo || '' });
+    const dtype = h('select', null, h('option', { value:'', text:'ทุกประเภท' }), DOC_TYPES.map(function(t){ return h('option', { value:t, text:t, selected: f.docType === t }); }));
+    const org = h('input', { placeholder:'หน่วยงานที่เกี่ยวข้อง', value:f.org || '', maxlength:100 });
+    fy.addEventListener('change', function(){ if (fy.value) { const r = thaiFiscalRange(+fy.value); df.value = r.from; dt.value = r.to; } });
+    const apply = function(){ Dashboard.filters = { fy:fy.value, dateFrom:df.value, dateTo:dt.value, docType:dtype.value, org:org.value.trim() }; Router.go('dashboard'); };
+    const canWrite = Store.is('admin','director','officer');
+    c.appendChild(h('div', { class:'card', style:'margin-bottom:14px' },
+      h('div', { class:'toolbar', style:'margin:0' },
+        h('div', { class:'field' }, h('label', { text:'ปีงบประมาณ' }), fy),
+        h('div', { class:'field' }, h('label', { text:'ตั้งแต่' }), df),
+        h('div', { class:'field' }, h('label', { text:'ถึง' }), dt),
+        h('div', { class:'field' }, h('label', { text:'ประเภทหนังสือ' }), dtype),
+        h('div', { class:'field grow' }, h('label', { text:'หน่วยงาน' }), org),
+        h('button', { class:'btn', text:'กรอง', onclick:apply }),
+        h('button', { class:'btn sec', text:'ล้าง', onclick: function(){ Dashboard.filters = {}; Router.go('dashboard'); } })),
+      h('div', { class:'quick', style:'margin-top:12px' },
+        canWrite ? h('button', { class:'btn sec', text:'➕ เพิ่มหนังสือรับ', onclick: function(){ Router.go('incoming'); setTimeout(function(){ Incoming.openForm(); }, 0); } }) : null,
+        canWrite ? h('button', { class:'btn sec', text:'✉️ สร้างหนังสือส่ง', onclick: function(){ Router.go('outgoing'); setTimeout(function(){ Outgoing.openForm(); }, 0); } }) : null,
+        h('button', { class:'btn sec', text:'🔍 ค้นหาเอกสาร', onclick: function(){ Router.go('incoming'); } }))));
+
+    const holder = h('div'); c.appendChild(holder);
+    let d;
+    try { d = await api('dashboard.summary', { dateFrom:f.dateFrom || '', dateTo:f.dateTo || '', docType:f.docType || '', org:f.org || '' }, { toast:false }); }
+    catch (e) { // สรุปจากเซิร์ฟเวอร์ใช้ไม่ได้ → คำนวณเองจากรายการหนังสือรับ/ส่ง
+      if (e.handled) throw e;
+      d = await Dashboard.localSummary(f).catch(function(){ return null; });
+      if (!d) { holder.appendChild(h('div', { class:'info', text:'ยังแสดงสรุปแดชบอร์ดไม่ได้ในขณะนี้ — ใช้งานเมนูด้านซ้ายได้ตามปกติ (' + e.message + ')' })); return; }
+    }
+    Shell.refreshBell();
+    const card = function(icon, val, label, cls, page){ return h('div', { class:'card stat ' + (cls || ''), style: page ? 'cursor:pointer' : '', onclick: page ? function(){ Router.go(page); } : null }, h('div', { class:'si', text:icon }), h('div', null, h('div', { class:'sv', text: String(val || 0) }), h('div', { class:'sl', text:label }))); };
+    holder.appendChild(h('div', { class:'grid stats' },
+      card('📥', d.totalIncoming, 'หนังสือรับ', '', 'incoming'),
+      card('📤', d.totalOutgoing, 'หนังสือส่ง', '', 'outgoing'),
+      card('🗂️', d.waitingForDirector, 'รอเสนอผู้บริหาร', 'warn', 'incoming'),
+      card('✍️', d.waitingForAction, 'รอสั่งการ / รอลงนาม', 'warn', 'incoming'),
+      card('🔁', d.unacknowledgedCirculars, 'หนังสือเวียนที่ยังไม่รับทราบ', 'warn', 'circulars')));
+    const allZero = !d.totalIncoming && !d.totalOutgoing && !d.pendingTasks;
+    if (allZero) holder.appendChild(h('div', { class:'info', style:'margin-top:14px', text:'ยังไม่มีข้อมูลในระบบ' }));
+    holder.appendChild(h('div', { class:'card', style:'margin-top:14px' }, h('h3', { text:'หนังสือรับ–ส่ง รายเดือน (6 เดือนล่าสุด)' }), Dashboard.chart(d.monthly || [])));
+  },
+  /** สรุปแดชบอร์ดฝั่งเครื่อง จาก incoming.list / outgoing.list (ใช้เมื่อ dashboard.summary ล้มเหลว) */
+  async localSummary(f){
+    const q = { page:1, pageSize:5000, dateFrom:f.dateFrom || '', dateTo:f.dateTo || '', docType:f.docType || '' };
+    const r = await Promise.all([
+      api('incoming.list', q, { toast:false }),
+      api('outgoing.list', q, { toast:false }).catch(function(){ return { records:[] }; })
+    ]);
+    const org = (f.org || '').trim();
+    const inc = (r[0].records || []).filter(function(x){ return !org || String(x.sourceOrg).indexOf(org) >= 0; });
+    const out = (r[1].records || []).filter(function(x){ return !org || String(x.destinationOrg).indexOf(org) >= 0; });
+    const monthly = [], t = isoDay();
+    for (let i = 5; i >= 0; i--) {
+      let y = +t.slice(0, 4), m = +t.slice(5, 7) - i;
+      while (m < 1) { m += 12; y--; }
+      const key = y + '-' + ('0' + m).slice(-2);
+      monthly.push({ label:(y + 543) + '/' + m,
+        incoming: inc.filter(function(x){ return String(x.receiveDate || '').slice(0, 7) === key; }).length,
+        outgoing: out.filter(function(x){ return String(x.sendDate || x.documentDate || '').slice(0, 7) === key; }).length });
+    }
+    return { totalIncoming:inc.length, totalOutgoing:out.length,
+      waitingForDirector: inc.filter(function(x){ return WAIT_ASSIGN.indexOf(x.status) >= 0; }).length,
+      waitingForAction: 0, unacknowledgedCirculars: 0, pendingTasks: 0, monthly:monthly };
+  },
+  async renderPublic(c){
+    c.appendChild(h('div', { class:'guest-banner' },
+      h('div', null, h('h2', { text:'ระบบสารบรรณอิเล็กทรอนิกส์ สำนักงานสาธารณสุขอำเภอกู่แก้ว' }), h('div', { text:'ข้อมูลด้านล่างเป็นสถิติภาพรวมเท่านั้น เข้าสู่ระบบเพื่อดูรายละเอียดตามสิทธิ์ของท่าน' })),
+      h('button', { class:'btn', text:'เข้าสู่ระบบ', onclick: function(){ Auth.openLogin(); } })));
+    const holder = h('div'); c.appendChild(holder);
+    try {
+      const d = await api('dashboard.publicStats', {}, { toast:false });
+      const card = function(icon, val, label, cls){ return h('div', { class:'card stat ' + (cls || '') }, h('div', { class:'si', text:icon }), h('div', null, h('div', { class:'sv', text:String(val || 0) }), h('div', { class:'sl', text:label }))); };
+      holder.appendChild(h('div', { class:'grid stats' },
+        card('📥', d.totalIncoming, 'หนังสือรับทั้งหมด'), card('📤', d.totalOutgoing, 'หนังสือส่งทั้งหมด')));
+      if (!d.totalIncoming && !d.totalOutgoing) holder.appendChild(h('div', { class:'info', style:'margin-top:14px', text:'ยังไม่มีข้อมูลในระบบ' }));
+    } catch (e) { // สถิติภาพรวมดึงไม่ได้ ไม่ต้องขวางการเข้าสู่ระบบ
+      holder.appendChild(h('div', { class:'info', text:'ยังแสดงสถิติภาพรวมไม่ได้ในขณะนี้ — กดปุ่ม "เข้าสู่ระบบ" เพื่อใช้งานได้ตามปกติ' }));
+      console.warn('publicStats:', e.message);
+    }
+  },
+  /** กราฟแท่ง SVG — ไม่พึ่ง CDN */
+  chart(data){
+    if (!data.length || !data.some(function(m){ return m.incoming || m.outgoing; })) return UI.empty('ยังไม่มีข้อมูลในระบบ');
+    const NS = 'http://www.w3.org/2000/svg', W = 600, H = 240, pad = 30, bw = 16;
+    const max = Math.max.apply(null, data.map(function(m){ return Math.max(m.incoming, m.outgoing); }).concat([1]));
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('class', 'chart'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'กราฟหนังสือรับและส่งรายเดือน');
+    const mk = function(tag, a, txt){ const e = document.createElementNS(NS, tag); Object.keys(a).forEach(function(k){ e.setAttribute(k, a[k]); }); if (txt !== undefined) e.textContent = txt; svg.appendChild(e); return e; };
+    mk('line', { x1:pad, y1:H - pad, x2:W - 10, y2:H - pad, stroke:'#cfd7e3' });
+    const step = (W - pad - 10) / data.length;
+    const thaiM = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    data.forEach(function(m, i){
+      const x = pad + i * step + step / 2;
+      [['incoming', '#1565e0', -bw - 2], ['outgoing', '#7fb2ff', 2]].forEach(function(s){
+        const v = m[s[0]] || 0, bh = (H - pad * 2) * v / max;
+        const r = mk('rect', { x: x + s[2], y: H - pad - bh, width: bw, height: Math.max(bh, 0), rx:3, fill:s[1] });
+        const t = document.createElementNS(NS, 'title'); t.textContent = (s[0] === 'incoming' ? 'รับ ' : 'ส่ง ') + v; r.appendChild(t);
+        if (v) mk('text', { x: x + s[2] + bw / 2, y: H - pad - bh - 4, 'text-anchor':'middle', 'font-size':11, fill:'#374151' }, String(v));
+      });
+      const parts = String(m.label).split('/');
+      mk('text', { x:x, y:H - 10, 'text-anchor':'middle', 'font-size':12, fill:'#6b7280' }, (thaiM[(+parts[1] || 1) - 1]) + ' ' + String(parts[0]).slice(2));
+    });
+    return h('div', null, svg, h('div', { class:'legend' }, h('span', null, h('i', { style:'background:#1565e0' }), 'หนังสือรับ'), h('span', null, h('i', { style:'background:#7fb2ff' }), 'หนังสือส่ง')));
+  }
+};
+
+/* =====================================================================
+   INCOMING — ทะเบียนหนังสือรับ
+   ===================================================================== */
+// ขั้นตอนถัดไปที่อนุญาต (Backend ตรวจซ้ำ) — admin ข้ามขั้นได้
+const INCOMING_FLOW = {
+  'รับใหม่':['รอตรวจสอบ','รอเสนอ'], 'รอตรวจสอบ':['รอเสนอ','ส่งกลับแก้ไข'], 'รอเสนอ':['รอพิจารณา'],
+  'รอพิจารณา':['สั่งการแล้ว','ส่งกลับแก้ไข'], 'สั่งการแล้ว':['มอบหมายแล้ว','รอรับทราบ'], 'รอรับทราบ':['มอบหมายแล้ว','เสร็จสิ้น'],
+  'มอบหมายแล้ว':['กำลังดำเนินการ'], 'กำลังดำเนินการ':['รอผลตรวจสอบ'], 'รอผลตรวจสอบ':['เสร็จสิ้น','ส่งกลับแก้ไข'], 'ส่งกลับแก้ไข':['รอตรวจสอบ','รอเสนอ']
+};
+const WAIT_ASSIGN = ['รับใหม่','รอสั่งการ/ลงนาม'];
+
+/* ---------- ลงนามในไฟล์ PDF (ฟรี: pdf-lib ทำงานในเบราว์เซอร์) — เป็นภาพลายเซ็น ไม่ใช่ลายมือชื่ออิเล็กทรอนิกส์ตามกฎหมาย ---------- */
+const Sign = {
+  POS: [{ value:'auto', label:'อัตโนมัติ (หาที่ว่าง ไม่ทับตัวหนังสือ)' }, { value:'br', label:'มุมล่างขวา' }, { value:'bl', label:'มุมล่างซ้าย' }, { value:'tr', label:'มุมบนขวา (ใต้หัวหนังสือ)' }],
+  fileId(url){ const m = String(url || '').match(/\/d\/([\w-]{20,})/) || String(url || '').match(/[?&]id=([\w-]{20,})/); return m ? m[1] : ''; },
+  loadLib(){
+    if (window.PDFLib) return Promise.resolve();
+    return new Promise(function(ok, bad){
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+      s.onload = ok; s.onerror = function(){ bad(new Error('โหลดตัวลงนาม PDF ไม่สำเร็จ')); };
+      document.head.appendChild(s);
+    });
+  },
+  /** วาดรูปลายเซ็น (สแกน) ลง canvas: ย่อให้พอดีกรอบ และทำพื้นกระดาษสีขาวให้โปร่งใส */
+  drawImg(c, src){
+    return new Promise(function(ok, bad){
+      const img = new Image();
+      img.onload = function(){
+        const ctx = c.getContext('2d');
+        const s = Math.min(c.width / img.width, c.height / img.height), w = img.width * s, hh = img.height * s;
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, (c.width - w) / 2, (c.height - hh) / 2, w, hh);
+        const d = ctx.getImageData(0, 0, c.width, c.height), px = d.data;
+        for (let i = 0; i < px.length; i += 4) { if (px[i] > 200 && px[i+1] > 200 && px[i+2] > 200) px[i+3] = 0; }
+        ctx.putImageData(d, 0, 0);
+        ok();
+      };
+      img.onerror = bad;
+      img.src = src;
+    });
+  },
+  /** กระดานวาดลายเซ็น (เมาส์/นิ้ว/ปากกา) */
+  pad(){
+    const c = h('canvas', { width:500, height:160, style:'border:1px dashed #9aa7bd;border-radius:8px;background:#fff;touch-action:none;width:100%;max-width:500px;cursor:crosshair' });
+    const ctx = c.getContext('2d');
+    ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#0b2a8a';
+    let drawing = false, empty = true;
+    const pt = function(e){ const b = c.getBoundingClientRect(); return [(e.clientX - b.left) * c.width / b.width, (e.clientY - b.top) * c.height / b.height]; };
+    c.addEventListener('pointerdown', function(e){ drawing = true; empty = false; c.setPointerCapture(e.pointerId); const p = pt(e); ctx.beginPath(); ctx.moveTo(p[0], p[1]); });
+    c.addEventListener('pointermove', function(e){ if (!drawing) return; const p = pt(e); ctx.lineTo(p[0], p[1]); ctx.stroke(); });
+    c.addEventListener('pointerup', function(){ drawing = false; });
+    // แนบลายเซ็นสแกน (JPG/PNG): ย่อให้พอดีกรอบ และทำพื้นกระดาษสีขาวให้โปร่งใส
+    const fileIn = h('input', { type:'file', accept:'image/png,image/jpeg', style:'display:none' });
+    fileIn.addEventListener('change', function(){
+      const f = fileIn.files[0]; fileIn.value = '';
+      if (!f) return;
+      if (!/^image\/(png|jpeg)$/.test(f.type) || f.size > 5 * 1024 * 1024) { UI.toast('รองรับเฉพาะไฟล์ JPG/PNG ขนาดไม่เกิน 5 MB', 'warn'); return; }
+      const u = URL.createObjectURL(f);
+      Sign.drawImg(c, u).then(function(){ empty = false; }, function(){ UI.toast('เปิดรูปลายเซ็นไม่ได้', 'error'); }).then(function(){ URL.revokeObjectURL(u); });
+    });
+    // ใส่ลายเซ็นสแกนที่บันทึกไว้ในหน้าแก้ไขผู้ใช้ให้อัตโนมัติ (ถ้ามี)
+    api('users.mySignature', {}, { loading:false, toast:false }).then(function(d){
+      if (d && d.data && empty) return Sign.drawImg(c, 'data:image/png;base64,' + d.data).then(function(){ empty = false; });    }).catch(function(){});
+    const el = h('div', { class:'field', style:'margin-top:12px' },
+      h('label', { text:'ลายเซ็น (วาดด้วยเมาส์/นิ้ว หรือแนบไฟล์ลายเซ็นสแกน) — เว้นว่างถ้าไม่ต้องการลงนามในไฟล์' }), c,
+      h('div', null,
+        h('button', { type:'button', class:'btn sm sec', text:'📎 แนบลายเซ็นสแกน', onclick: function(){ fileIn.click(); } }),
+        h('button', { type:'button', class:'btn sm sec', text:'ล้างลายเซ็น', onclick: function(){ ctx.clearRect(0, 0, c.width, c.height); empty = true; } }), fileIn));
+    return { el:el, canvas:c, isEmpty: function(){ return empty; } };
+  },
+  /** ภาพเกษียณหนังสือ: ข้อสั่งการ + ลายเซ็น + ชื่อ + วันที่ (วาดบน canvas เพื่อให้ภาษาไทยถูกต้องโดยไม่ต้องฝังฟอนต์ใน PDF) */
+  stamp(sig, note){
+    const S = 2, W = 300 * S, pad = 8 * S, fs = 13 * S, lh = fs * 1.35, font = fs + 'px Sarabun, Tahoma, sans-serif';
+    const c = document.createElement('canvas'), x = c.getContext('2d');
+    x.font = font;
+    const wrap = function(t){ const out = []; String(t || '').split('\n').forEach(function(p){ let line = ''; Array.from(p).forEach(function(ch){ if (line && x.measureText(line + ch).width > W - pad * 2) { out.push(line); line = ch; } else line += ch; }); if (line) out.push(line); }); return out; };
+    const u = Store.user || {};
+    const top = wrap(note).slice(0, 6);
+    const bottom = ['(' + (u.fullName || u.username) + ')'].concat(u.department ? [u.department] : []).concat([fmtDate(isoDay())]);
+    const sh = 60 * S, sw = Math.min(W - pad * 2, sh * sig.width / sig.height);
+    c.width = W; c.height = pad * 2 + top.length * lh + sh + bottom.length * lh;
+    x.font = font; x.fillStyle = '#0b2a8a'; x.textBaseline = 'top';
+    let y = pad;
+    top.forEach(function(l){ x.fillText(l, pad, y); y += lh; });
+    x.drawImage(sig, (W - sw) / 2, y, sw, sh); y += sh;
+    x.textAlign = 'center';
+    bottom.forEach(function(l){ x.fillText(l, W / 2, y); y += lh; });
+    return c;
+  },
+  /** หาพื้นที่ว่าง (ไม่มีตัวหนังสือ/ภาพ) บนหน้าแรกของ PDF ขนาด w×h pt — คืนพิกัด PDF {x,y,w,h} หรือ null
+   *  ใช้ pdf.js วาดหน้าลง canvas แล้วหาช่องที่ไม่มีจุดสีเข้ม เลือกตำแหน่งต่ำสุด/ขวาสุดก่อน (ตำแหน่งเกษียณหนังสือปกติ) */
+  async findBlank(bytes, w, h){
+    const base = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+    if (!window.pdfjsLib) await new Promise(function(ok, bad){ const s = document.createElement('script'); s.src = base + 'pdf.min.js'; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });
+    pdfjsLib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.js';
+    const doc = await pdfjsLib.getDocument({ data: bytes.slice() }).promise;
+    const page = await doc.getPage(1), vp = page.getViewport({ scale:1 });
+    const W = Math.ceil(vp.width), H = Math.ceil(vp.height);
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+    await page.render({ canvasContext:ctx, viewport:vp }).promise;
+    const px = ctx.getImageData(0, 0, W, H).data;
+    // ตารางผลรวมสะสมของจุดสีเข้ม — นับจุดเข้มในสี่เหลี่ยมใด ๆ ได้ทันที
+    const S = new Int32Array((W + 1) * (H + 1));
+    for (let y = 0; y < H; y++) { let row = 0; for (let x = 0; x < W; x++) { const i = (y * W + x) * 4; if (px[i] + px[i+1] + px[i+2] < 600) row++; S[(y + 1) * (W + 1) + x + 1] = S[y * (W + 1) + x + 1] + row; } }
+    const dark = function(x, y, ww, hh){ return S[(y + hh) * (W + 1) + x + ww] - S[y * (W + 1) + x + ww] - S[(y + hh) * (W + 1) + x] + S[y * (W + 1) + x]; };
+    const pad = 6, mg = 20;
+    for (let k = 0; k < 4; k++) { // ไม่พอ → ย่อลายเซ็นลงทีละ 15%
+      const ww = Math.round(w) + pad * 2, hh = Math.round(h) + pad * 2;
+      for (let y = H - mg - hh; y >= mg; y -= 6) {
+        for (let x = W - mg - ww; x >= mg; x -= 6) {
+          if (dark(x, y, ww, hh) <= 3) return { x:x + pad, y:H - y - hh + pad, w:w, h:h };
+        }
+      }
+      w *= 0.85; h *= 0.85;
+    }
+    return null;
+  },
+  /** ประทับลายเซ็นลงหน้าแรกของ PDF แล้วอัปโหลดเป็นไฟล์ใหม่ (ไฟล์เดิมยังอยู่) — คืนลิงก์ไฟล์ที่ลงนามแล้ว */
+  async signPdf(fileId, sigCanvas, note, pos){
+    UI.loading(true, 'กำลังลงนามในไฟล์ PDF...');
+    try {
+      await Sign.loadLib();
+      const f = await api('files.get', { fileId:fileId }, { loading:false, toast:false });
+      let bytes = Uint8Array.from(atob(f.data), function(ch){ return ch.charCodeAt(0); });
+      let doc;
+      if (/^image\//.test(f.mime || '')) {
+        // ไฟล์รูปภาพ (สแกน/ถ่ายรูป): แปลงเป็น PDF 1 หน้าขนาด A4 ก่อน แล้วลงนามเหมือน PDF
+        doc = await PDFLib.PDFDocument.create();
+        const img = f.mime === 'image/png' ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
+        const A4 = [595.28, 841.89], sc = Math.min(A4[0] / img.width, A4[1] / img.height);
+        const pg = doc.addPage(A4);
+        pg.drawImage(img, { x:(A4[0] - img.width * sc) / 2, y:(A4[1] - img.height * sc) / 2, width:img.width * sc, height:img.height * sc });
+        bytes = await doc.save();
+      } else doc = await PDFLib.PDFDocument.load(bytes, { ignoreEncryption:true });
+      const st = Sign.stamp(sigCanvas, note);
+      const png = await doc.embedPng(st.toDataURL('image/png'));
+      const page = doc.getPages()[0], ps = page.getSize();
+      let w = 170, hh = w * st.height / st.width;
+      const mg = 36;
+      let xy = { br:[ps.width - w - mg, mg], bl:[mg, mg], tr:[ps.width - w - mg, ps.height - hh - mg - 90] }[pos];
+      if (!xy) { // อัตโนมัติ: หาพื้นที่ว่างบนหน้าแรก ไม่ทับตัวหนังสือ
+        const b = await Sign.findBlank(bytes, w, hh).catch(function(){ return null; });
+        if (b) { xy = [b.x, b.y]; w = b.w; hh = b.h; }
+        else { xy = [ps.width - w - mg, mg]; UI.toast('ไม่พบพื้นที่ว่างพอ — วางลายเซ็นที่มุมล่างขวา', 'warn'); }
+      }
+      page.drawImage(png, { x:xy[0], y:xy[1], width:w, height:hh });
+      const b64 = await doc.saveAsBase64();
+      const name = 'ลงนาม_' + String(f.name).replace(/^\d{8}-\d{6}_/, '').replace(/\.(pdf|jpe?g|png)$/i, '') + '.pdf';
+      const up = await api('files.upload', { fileName:name, mimeType:'application/pdf', data:b64, srcId:f.srcId }, { loading:false, toast:false });
+      return { url:up.url, oldId:f.oldSignedId || '' };
+    } finally { UI.loading(false); }
+  }
+};
+const Incoming = {
+  state: { page:1, f:{} },
+  /** PDF: ตัดเหลือหน้าแรกก่อนส่งอ่าน (ข้อมูลหัวหนังสืออยู่หน้าแรก — ส่งน้อยลง อ่านเร็วและแม่นขึ้น) ถ้าตัดไม่ได้ส่งทั้งไฟล์ */
+  firstPage(f, b64){
+    if (!/\.pdf$/i.test(f.name)) return Promise.resolve(b64);
+    return Sign.loadLib().then(async function(){
+      const src = await PDFLib.PDFDocument.load(Uint8Array.from(atob(b64), function(ch){ return ch.charCodeAt(0); }), { ignoreEncryption:true });
+      if (src.getPageCount() <= 1) return b64;
+      const out = await PDFLib.PDFDocument.create();
+      const pg = await out.copyPages(src, [0]);
+      out.addPage(pg[0]);
+      return out.saveAsBase64();
+    }).catch(function(){ return b64; });
+  },
+  /** PDF ที่พิมพ์จากคอมพิวเตอร์: ดึงข้อความหน้าแรกในเบราว์เซอร์ (pdf.js) ส่งให้เซิร์ฟเวอร์แยกช่อง — ไม่พึ่ง AI; ไฟล์สแกนจะได้ข้อความว่าง */
+  pdfText(f, b64){
+    if (!/\.pdf$/i.test(f.name)) return Promise.resolve('');
+    const base = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+    const load = window.pdfjsLib ? Promise.resolve() : new Promise(function(ok, bad){ const s = document.createElement('script'); s.src = base + 'pdf.min.js'; s.onload = ok; s.onerror = bad; document.head.appendChild(s); });
+    return load.then(async function(){
+      pdfjsLib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.js';
+      const doc = await pdfjsLib.getDocument({ data: Uint8Array.from(atob(b64), function(ch){ return ch.charCodeAt(0); }) }).promise;
+      const tc = await (await doc.getPage(1)).getTextContent();
+      // จัดเป็นบรรทัดตามตำแหน่งแนวตั้ง แล้วเรียงซ้าย→ขวา; ช่องห่างมากใส่ 2 ช่องว่าง (แยก "ที่ ..." กับชื่อหน่วยงาน)
+      const rows = [];
+      tc.items.forEach(function(it){ if (!it.str.trim()) return; const y = it.transform[5], x = it.transform[4]; let r = rows.find(function(q){ return Math.abs(q.y - y) < 4; }); if (!r) { r = { y:y, items:[] }; rows.push(r); } r.items.push({ x:x, w:it.width, s:it.str }); });
+      rows.sort(function(a, b){ return b.y - a.y; });
+      return rows.map(function(r){ r.items.sort(function(a, b){ return a.x - b.x; }); let line = '', end = null; r.items.forEach(function(i){ if (end !== null) line += (i.x - end > 25 ? '    ' : (i.x - end > 2 ? ' ' : '')); line += i.s; end = i.x + i.w; }); return line; }).join('\n').slice(0, 20000);
+    }).catch(function(){ return ''; });
+  },
+  async render(c){
+    const s = Incoming.state;
+    const canWrite = Store.is('admin','director','officer');
+    c.appendChild(UI.section('ทะเบียนหนังสือรับ', [
+      canWrite ? h('button', { class:'btn', text:'➕ ลงทะเบียนหนังสือรับ', onclick: function(){ Incoming.openForm(); } }) : null,
+      h('button', { class:'btn sec', text:'⬇ ส่งออก CSV', onclick: function(e){ Incoming.exportCSV(e.currentTarget); } }),
+      h('button', { class:'btn sec', text:'🖨 พิมพ์', onclick: function(){ window.print(); } })
+    ]));
+    const q = h('input', { placeholder:'ค้นหา เลขรับ / เรื่อง / เลขหนังสือ / หน่วยงาน', value:s.f.search || '', maxlength:100 });
+    const st = h('select', null, h('option', { value:'', text:'ทุกสถานะ' }), STATUS_INCOMING.map(function(x){ return h('option', { value:x, text:x, selected:s.f.status === x }); }));
+    const ty = h('select', null, h('option', { value:'', text:'ทุกประเภท' }), DOC_TYPES.map(function(x){ return h('option', { value:x, text:x, selected:s.f.docType === x }); }));
+    const ur = h('select', null, h('option', { value:'', text:'ทุกความเร่งด่วน' }), URGENCY.map(function(x){ return h('option', { value:x, text:x, selected:s.f.urgency === x }); }));
+    const df = h('input', { type:'date', value:s.f.dateFrom || '' }), dt = h('input', { type:'date', value:s.f.dateTo || '' });
+    const go = function(){ s.f = { search:q.value.trim(), status:st.value, docType:ty.value, urgency:ur.value, dateFrom:df.value, dateTo:dt.value }; s.page = 1; Router.go('incoming'); };
+    q.addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
+    c.appendChild(h('div', { class:'toolbar' }, h('div', { class:'field grow' }, h('label', { text:'คำค้น' }), q),
+      h('div', { class:'field' }, h('label', { text:'สถานะ' }), st), h('div', { class:'field' }, h('label', { text:'ประเภท' }), ty),
+      h('div', { class:'field' }, h('label', { text:'ความเร่งด่วน' }), ur),
+      h('div', { class:'field' }, h('label', { text:'รับตั้งแต่' }), df), h('div', { class:'field' }, h('label', { text:'ถึง' }), dt),
+      h('button', { class:'btn', text:'ค้นหา', onclick:go }),
+      h('button', { class:'btn sec', text:'ล้าง', onclick: function(){ s.f = {}; s.page = 1; Router.go('incoming'); } })));
+    const holder = h('div'); c.appendChild(holder);
+    await activeUsers().catch(function(){ return []; });
+    const d = await api('incoming.list', Object.assign({ page:s.page, pageSize:PAGE_SIZE }, s.f), { loadingText: s.f.search ? 'กำลังค้นหา...' : 'กำลังโหลดข้อมูล...', toast:false });
+    holder.appendChild(UI.table([
+      { label:'เลขรับ', render: function(r){ return h('b', { text: r.receiveNo + '/' + r.receiveYear }); } },
+      { label:'วันที่รับ', render: function(r){ return fmtDate(r.receiveDate); } },
+      { label:'ที่', key:'sourceNo' },
+      { label:'จาก', key:'sourceOrg' },
+      { label:'เรื่อง', cls:'subj', render: function(r){ return [r.subject, ' ', secretBadge(r.confidentiality)]; } },
+      { label:'ความเร่งด่วน', render: function(r){ return urgencyBadge(r.urgency); } },
+      { label:'ผู้รับผิดชอบ', render: function(r){ return userName(r.assignedTo); } },
+      { label:'สถานะ', render: function(r){ return statusBadge(r.status); } },
+      { label:'', render: function(r){ return h('button', { class:'btn sm sec no-print', text:'ดู', onclick: function(){ Incoming.openDetail(r.id); } }); } }
+    ], d.records, s.f.search || s.f.status ? 'ไม่พบรายการที่ตรงกับเงื่อนไข' : 'ยังไม่มีข้อมูลในระบบ'));
+    holder.appendChild(UI.pager(d.total, d.page, d.pageSize, function(p){ s.page = p; Router.go('incoming'); }));
+  },
+  fields(users, noLabel){
+    return [
+      { name:'attachmentUrl', label:'ไฟล์แนบ (เลือกไฟล์ หรือวางลิงก์ https://)', type:'url', max:1000, full:true, help:'เลือกไฟล์ PDF หรือรูปภาพ แล้วระบบจะอ่านและกรอกข้อมูลด้านล่างให้อัตโนมัติ (Word/Excel แนบได้แต่ไม่อ่าน) ไม่เกิน 10 MB' },
+      { name:'receiveNoLabel', label:'เลขที่หนังสือรับ (ระบบออกให้อัตโนมัติ)', readonly:true, value: noLabel, help:'เลขรับเรียงต่อกันภายในปี พ.ศ. ปัจจุบัน — เลขจริงจะยืนยันเมื่อกดบันทึก' },
+      { name:'receiveDate', label:'วันที่รับ', type:'date', required:true, value: isoDay() },
+      { name:'documentDate', label:'ลงวันที่ (ในหนังสือ)', type:'date', validate: function(v, f){ return v && f.elements.receiveDate.value && v > f.elements.receiveDate.value ? 'วันที่ในหนังสือต้องไม่หลังวันที่รับ' : ''; } },
+      { name:'sourceNo', label:'เลขที่หนังสือต้นทาง', max:100, placeholder:'เช่น อด 0032/ว 123' },
+      { name:'sourceOrg', label:'หน่วยงานต้นทาง', required:true, max:200 },
+      { name:'subject', label:'เรื่อง', required:true, max:500, full:true },
+      { name:'documentType', label:'ประเภทหนังสือ', type:'select', options:DOC_TYPES, required:true },
+      { name:'urgency', label:'ชั้นความเร่งด่วน', type:'select', options:URGENCY, required:true },
+      { name:'confidentiality', label:'ชั้นความลับ/ระดับการเข้าถึง', type:'select', options:SECRET, required:true, help:'ชั้นลับขึ้นไปเห็นเฉพาะผู้บริหาร ผู้ดูแล ผู้บันทึก และผู้รับผิดชอบ' },
+      { name:'assignedTo', label:'ผู้รับผิดชอบ', type:'select', options:userOptions(users) },
+      { name:'remarks', label:'หมายเหตุ', type:'textarea', max:2000, full:true }
+    ];
+  },
+  async openForm(rec){
+    const users = await activeUsers().catch(function(){ return []; });
+    let noLabel = rec ? rec.receiveNo + '/' + rec.receiveYear : '';
+    if (!rec) { const nx = await api('incoming.nextNo', {}, { toast:false, loadingText:'กำลังออกเลขรับ...' }); noLabel = nx.no + '/' + nx.year; }
+    const fm = formModal(rec ? 'แก้ไขหนังสือรับ เลขที่ ' + noLabel : 'ลงทะเบียนหนังสือรับ', Incoming.fields(users, noLabel), rec || {}, async function(v){
+      delete v.receiveNoLabel;
+      if (!rec && v.sourceNo) {
+        // ตรวจซ้ำ: เลขหนังสือ + หน่วยงานเดียวกัน — ให้ผู้ใช้ตัดสินใจ
+        const dup = await api('incoming.list', { search:v.sourceNo, page:1, pageSize:5 }, { toast:false, loadingText:'กำลังตรวจสอบข้อมูลซ้ำ...' });
+        const hit = (dup.records || []).find(function(r){ return String(r.sourceNo).trim() === v.sourceNo && String(r.sourceOrg).trim() === v.sourceOrg; });
+        if (hit && !(await UI.confirm('พบหนังสือที่อาจซ้ำ', 'มีหนังสือเลขที่ ' + v.sourceNo + ' จาก ' + v.sourceOrg + ' ลงทะเบียนแล้ว (เลขรับ ' + hit.receiveNo + '/' + hit.receiveYear + ') ต้องการลงทะเบียนซ้ำหรือไม่?', { okText:'ลงทะเบียนต่อ' }))) throw Object.assign(new Error('ยกเลิกการบันทึก'), { handled:true });
+      }
+      if (rec) await api('incoming.update', Object.assign({ id:rec.id }, v), { loadingText:'กำลังแก้ไขรายการ...' });
+      else {
+        const res = await api('incoming.create', v, { loadingText:'กำลังบันทึกข้อมูล...' });
+        UI.toast('🔔 ส่งแจ้งเตือนถึงสาธารณสุขอำเภอเพื่อลงนามมอบหมายแล้ว (เลขรับ ' + res.receiveNo + '/' + res.receiveYear + ')', 'ok');
+      }
+      Router.go('incoming'); Shell.refreshBell();
+    });
+    const form = fm.body.querySelector('form');
+    // กล่องแสดงผลการอ่านเอกสารค้างไว้ในฟอร์ม (toast หายเร็ว คัดลอกสาเหตุไม่ทัน)
+    const aiBox = h('div', { class:'notice full hidden', style:'white-space:pre-wrap;margin:0' });
+    form.insertBefore(aiBox, form.children[1]);
+    const aiMsg = function(t){ aiBox.textContent = t; aiBox.classList.toggle('hidden', !t); };
+    // กรอกฟอร์มทันทีที่อ่านเสร็จ ไม่รอการอัปโหลดไฟล์ลง Drive (สองงานรันพร้อมกัน)
+    attachUploader(form, 'attachmentUrl', null, function(f, b64){
+      if (!/\.(pdf|jpe?g|png)$/i.test(f.name)) return null;
+      UI.toast('🔎 กำลังอ่านเอกสาร จะกรอกข้อมูลให้อัตโนมัติ...', 'warn');
+      aiMsg('🔎 กำลังอ่านเอกสาร...');
+      let slowFill = false; // อ่านช้า ผู้ใช้อาจกรอกเองไปแล้ว → เติมเฉพาะช่องที่ยังว่าง
+      return Promise.all([Incoming.firstPage(f, b64), Incoming.pdfText(f, b64)]).then(function(r){
+        // นานเกิน 1 นาที → แจ้งว่ายังอ่านอยู่ แต่รอผลต่อ (ผลมาเมื่อไรก็กรอกให้)
+        const slow = setTimeout(function(){ slowFill = true; aiMsg('⏳ ยังอ่านอยู่ (เซิร์ฟเวอร์ AI ช้า) — กรอกเองไปก่อนได้ ถ้าอ่านเสร็จจะเติมช่องที่ว่างให้'); }, 60000);
+        return api('ai.extract', { data:r[0], text:r[1], fileName:f.name }, { loading:false, toast:false }).finally(function(){ clearTimeout(slow); });
+      }).then(function(x){
+        let n = 0;
+        ['sourceNo','sourceOrg','subject','documentDate','documentType','urgency','confidentiality','remarks'].forEach(function(k){ if (x && x[k] && form.elements[k] && (!slowFill || !form.elements[k].value)) { form.elements[k].value = x[k]; n++; } });
+        UI.toast('🤖 อ่านเอกสารและกรอกข้อมูลให้แล้ว กรุณาตรวจสอบก่อนบันทึก', 'ok');
+        // ไม่ได้กรอกช่องใดเลย → แสดงข้อมูลที่เซิร์ฟเวอร์ส่งกลับมา เพื่อหาสาเหตุ
+        aiMsg(!n ? '⚠ ระบบตอบกลับแต่ไม่มีข้อมูลให้กรอก: ' + JSON.stringify(x).slice(0, 600) : x.debug ? '⚠ อ่านได้ไม่ครบ: ' + x.debug : '');
+      }, function(e){ aiMsg('⚠ ' + (e.message || 'อ่านเอกสารไม่สำเร็จ กรุณากรอกเอง')); UI.toast(e.message || 'อ่านเอกสารไม่สำเร็จ กรุณากรอกเอง', 'warn'); throw e; });
+    });
+  },
+  async openDetail(id){
+    const r = await api('incoming.get', { id:id }, { toast:false });
+    await activeUsers().catch(function(){ return []; });
+    const m = UI.modal('หนังสือรับ เลขที่ ' + r.receiveNo + '/' + r.receiveYear);
+    m.body.appendChild(UI.kv([
+      ['สถานะ', statusBadge(r.status)], ['เรื่อง', r.subject], ['จาก', r.sourceOrg], ['ที่', r.sourceNo],
+      ['วันที่รับ', fmtDate(r.receiveDate)], ['ลงวันที่', fmtDate(r.documentDate)], ['ประเภท', r.documentType],
+      ['ความเร่งด่วน', urgencyBadge(r.urgency)], ['ชั้นความลับ', r.confidentiality], ['ผู้รับผิดชอบ', userName(r.assignedTo)],
+      ['ไฟล์แนบ', safeLink(r.attachmentUrl)], ['หนังสือที่เกี่ยวข้อง', r.relatedDocumentIds],
+      ['หมายเหตุ', h('div', { style:'white-space:pre-wrap', text: r.remarks || '-' })],
+      ['บันทึกโดย', userName(r.createdBy) + ' — ' + fmtDateTime(r.createdAt)], ['แก้ไขล่าสุด', userName(r.updatedBy) + ' — ' + fmtDateTime(r.updatedAt)]
+    ]));
+    Incoming.assignButtons(m, r);
+    if (Store.is('admin','director','officer')) {
+      m.foot.appendChild(h('button', { class:'btn sec', text:'🔁 เวียนแจ้ง', onclick: function(){ m.close(); Circulars.openForm({ documentType:'incoming', documentId:r.id, circularTitle:r.subject }); } }));
+      m.foot.appendChild(h('button', { class:'btn sec', text:'✏️ แก้ไข', onclick: function(){ m.close(); Incoming.openForm(r); } }));
+    }
+    if (Store.is('admin','director')) m.foot.appendChild(h('button', { class:'btn bad', text:'ยกเลิกรายการ', onclick: async function(e){
+      const reason = await UI.confirm('ยืนยันการยกเลิก', 'รายการจะถูกทำเครื่องหมายยกเลิก (ไม่ลบหลักฐาน) และบันทึกประวัติไว้', { danger:true, reason:true, okText:'ยกเลิกรายการ' });
+      if (!reason) return;
+      runAction(e.target, async function(){ await api('incoming.delete', { id:r.id, reason:reason }, { loadingText:'กำลังบันทึกข้อมูล...' }); m.close(); Router.go('incoming'); });
+    } }));
+  },
+  /** ผู้บริหารลงนามสั่งการ: รับใหม่ → สั่งการแล้ว */
+  assignButtons(m, r){
+    const refresh = function(){ m.close(); Router.go('incoming'); Shell.refreshBell(); };
+    const editing = r.status === 'สั่งการแล้ว'; // director แก้ไขการสั่งการที่ลงนามไปแล้วได้
+    if (Store.is('director') && (WAIT_ASSIGN.indexOf(r.status) >= 0 || editing)) {
+      m.foot.appendChild(h('button', { class:'btn ok', text: editing ? '✏️ แก้ไขการสั่งการ' : '✍️ ลงนามสั่งการ', onclick: function(){
+        const fid = Sign.fileId(r.attachmentUrl);
+        let pad = null;
+        const fm = formModal('ลงนามสั่งการ: ' + r.subject, [
+          { name:'assignedTo', label:'ผู้รับผิดชอบ', type:'select', options:userOptions(_userCache || []), required:true },
+          { name:'note', label:'ข้อสั่งการ', type:'textarea', max:1000, full:true, placeholder:'เช่น ดำเนินการ / ทราบ / แจ้งผู้เกี่ยวข้อง' }
+        ].concat(fid ? [{ name:'signPos', label:'ตำแหน่งลายเซ็นในไฟล์ PDF', type:'select', options:Sign.POS, required:true }] : []), { assignedTo:r.assignedTo }, async function(v){
+          let signed = null; // วาดลายเซ็นใหม่ → ลงนามบนต้นฉบับ แล้วลบไฟล์ลงนามเดิม
+          if (pad && !pad.isEmpty()) signed = await Sign.signPdf(fid, pad.canvas, 'มอบ ' + userName(v.assignedTo) + (v.note ? '\n' + v.note : ''), v.signPos);
+          const url = signed ? signed.url : '';
+          await api('incoming.update', Object.assign({ id:r.id, sign:true, assignedTo:v.assignedTo, note:(editing ? 'แก้ไขการสั่งการ' : 'ลงนามสั่งการ') + (v.note ? ': ' + v.note : '') + (url ? ' (ลงนามในไฟล์แล้ว)' : '') }, url ? { attachmentUrl:url } : {}), { loadingText:'กำลังบันทึกการสั่งการ...' });
+          if (signed && signed.oldId) { try { await api('files.trash', { fileId:signed.oldId }, { loading:false, toast:false }); } catch (e) {} }
+          refresh();
+        }, '✍️ ลงนามสั่งการ');
+        if (fid) { pad = Sign.pad(); fm.body.appendChild(pad.el); }
+      } }));
+    }
+  },
+  async exportCSV(btn){
+    runAction(btn, async function(){
+      const d = await api('incoming.list', Object.assign({ page:1, pageSize:5000 }, Incoming.state.f), { loadingText:'กำลังประมวลผลรายงาน...', toast:false });
+      if (!d.records.length) { UI.toast('ไม่มีข้อมูลให้ส่งออก', 'warn'); return; }
+      const rows = d.records.map(function(r){ return Object.assign({}, r, { no: r.receiveNo + '/' + r.receiveYear, receiveDate: fmtDate(r.receiveDate), documentDate: fmtDate(r.documentDate), assignedTo: userName(r.assignedTo) }); });
+      downloadCSV('ทะเบียนหนังสือรับ_' + isoDay() + '.csv', [['no','เลขรับ'],['receiveDate','วันที่รับ'],['sourceNo','ที่'],['documentDate','ลงวันที่'],['sourceOrg','จาก'],['subject','เรื่อง'],['documentType','ประเภท'],['urgency','ความเร่งด่วน'],['confidentiality','ชั้นความลับ'],['assignedTo','ผู้รับผิดชอบ'],['status','สถานะ'],['remarks','หมายเหตุ']], rows);
+    });
+  }
+};
+
+function deadlineCell(deadline, status){
+  if (!deadline) return '-';
+  const done = ['เสร็จสิ้น','ยกเลิก','ส่งแล้ว'].indexOf(status) >= 0;
+  const today = isoDay(), dl = isoDay(deadline);
+  const days = Math.round((parseDate(dl) - parseDate(today)) / 86400000);
+  const label = fmtDate(deadline);
+  if (done) return label;
+  if (days < 0) return h('span', null, label, ' ', h('span', { class:'badge b-bad', text:'เกิน ' + (-days) + ' วัน' }));
+  if (days <= 3) return h('span', null, label, ' ', h('span', { class:'badge b-warn', text: days === 0 ? 'วันนี้' : 'อีก ' + days + ' วัน' }));
+  return label;
+}
+
+/* ---------- Workflow: ปุ่มเปลี่ยนสถานะตามขั้นตอน ---------- */
+const Workflow = {
+  buttons(m, module, rec, flow, onDone){
+    if (!Store.is('admin','director','officer')) return;
+    const isBoss = Store.is('admin','director');
+    let next = flow[rec.status] || [];
+    if (Store.is('admin')) next = (module === 'incoming' ? STATUS_INCOMING : STATUS_OUTGOING).filter(function(x){ return x !== rec.status && x !== 'ยกเลิก'; });
+    next = next.filter(function(s){ return isBoss || DIRECTOR_STATUS.indexOf(s) < 0; });
+    // ผู้บริหาร (director) ในทะเบียนหนังสือส่ง: เลือกได้เฉพาะ ลงนามแล้ว / ส่งกลับแก้ไข
+    if (module === 'outgoing' && Store.is('director')) next = ['ส่งแล้ว','ยกเลิก'].indexOf(rec.status) >= 0 ? [] : ['ลงนามแล้ว','ส่งกลับแก้ไข'].filter(function(s){ return s !== rec.status; });
+    if (!next.length) return;
+    const sel = h('select', null, next.map(function(s){ return h('option', { value:s, text:s }); }));
+    const btn = h('button', { class:'btn ok', text:'เปลี่ยนสถานะ' });
+    btn.addEventListener('click', function(){ Workflow.change(module, rec, sel.value, onDone); });
+    m.foot.insertBefore(h('div', { style:'display:flex;gap:6px;margin-right:auto' }, sel, btn), m.foot.firstChild);
+  },
+  change(module, rec, status, onDone){
+    const isDirective = status === 'สั่งการแล้ว';
+    const users = _userCache || [];
+    const fields = [{ name:'note', label: isDirective ? 'ข้อความสั่งการ' : 'บันทึก/เหตุผล', type:'textarea', required: isDirective || status === 'ส่งกลับแก้ไข', max:1000, full:true }];
+    if (isDirective) {
+      fields.push({ name:'assignee', label:'ผู้รับผิดชอบ', type:'select', options:userOptions(users), required:true });
+    }
+    formModal('เปลี่ยนสถานะเป็น "' + status + '"', fields, { assignee: rec.assignedTo }, async function(v){
+      const upd = { id:rec.id, status:status, note:v.note };
+      if (isDirective) upd.assignedTo = v.assignee;
+      await api(module + '.update', upd, { loadingText:'กำลังส่งคำสั่ง...' });
+      onDone();
+    }, 'ยืนยัน');
+  }
+};
+/* =====================================================================
+   OUTGOING — ทะเบียนหนังสือส่ง
+   ===================================================================== */
+const OUTGOING_FLOW = {
+  'ร่าง':['รอเสนอ'], 'รอเสนอ':['รอพิจารณา'], 'รอพิจารณา':['รอลงนาม','ส่งกลับแก้ไข'],
+  'รอลงนาม':['ลงนามแล้ว','ส่งกลับแก้ไข'], 'ลงนามแล้ว':['ส่งแล้ว'], 'ส่งกลับแก้ไข':['ร่าง','รอเสนอ']
+};
+/** เลขที่หนังสือส่งตามประเภท: คำสั่ง = เลข/ปี พ.ศ., ประกาศ = ไม่มีเลขอัตโนมัติ, อื่น ๆ = รหัสหน่วยงาน + เลข */
+function docNo(r, prefix){
+  if (!r || !r.sendNo) return '';
+  if (r.documentType === 'คำสั่ง') return r.sendNo + '/' + r.sendYear;
+  return (prefix || '') + r.sendNo;
+}
+/* ---------- พิมพ์หนังสือราชการภายนอก (A4 แนวตั้ง ตามระเบียบสำนักนายกรัฐมนตรีว่าด้วยงานสารบรรณ) ---------- */
+const Letter = {
+  TH_M: ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'],
+  thNum(s){ return String(s == null ? '' : s).replace(/[0-9]/g, function(d){ return '๐๑๒๓๔๕๖๗๘๙'.charAt(+d); }); },
+  esc(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); },
+  thDate(v){ const t = isoDay(v || undefined); return (+t.slice(8, 10)) + ' ' + Letter.TH_M[+t.slice(5, 7) - 1] + ' ' + (+t.slice(0, 4) + 543); },
+  /** ช่องกรอกแบบฟอร์มหนังสือราชการภายนอก (ใช้ทั้งหน้าสร้างหนังสือส่งและหน้าพิมพ์) */
+  fields(){
+    return [
+      { name:'no', label:'ที่ (กำหนดอัตโนมัติ)', readonly:true, help:'รหัสหน่วยงานจากการตั้งค่า + เลขส่ง (ระบบออกเลขให้ทันทีเมื่อบันทึกร่าง)' },
+      { name:'date', label:'วันที่', type:'date', required:true },
+      { name:'orgHead', label:'ส่วนราชการเจ้าของหนังสือ (มุมขวาบน)', type:'textarea', rows:3, required:true, max:300, full:true, help:'ชื่อส่วนราชการและที่ตั้ง ขึ้นบรรทัดใหม่ได้' },
+      { name:'subject', label:'เรื่อง', required:true, max:500, full:true },
+      { name:'to', label:'เรียน', required:true, max:300, full:true },
+      { name:'refer', label:'อ้างถึง (ถ้ามี)', max:300, full:true },
+      { name:'enclosure', label:'สิ่งที่ส่งมาด้วย (ถ้ามี)', type:'textarea', rows:2, max:1000, full:true, help:'กด Enter เพื่อขึ้นบรรทัดใหม่ได้' },
+      { name:'p1', label:'ย่อหน้าที่ 1 (ภาคเหตุ)', type:'textarea', rows:3, required:true, max:3000, full:true },
+      { name:'p2', label:'ย่อหน้าที่ 2 (ภาคความประสงค์)', type:'textarea', rows:3, max:3000, full:true },
+      { name:'p3', label:'ย่อหน้าที่ 3 (ภาคสรุป)', type:'textarea', rows:2, max:1000, full:true },
+      { name:'effDate', label:'ทั้งนี้ ตั้งแต่ (วันที่)', type:'date', help:'คำสั่ง: พิมพ์เป็น "ทั้งนี้ ตั้งแต่วันที่ ... เป็นต้นไป"' },
+      { name:'closing', label:'คำลงท้าย', type:'select', options:['ขอแสดงความนับถือ','ขอแสดงความนับถืออย่างยิ่ง','ขอแสดงความเคารพอย่างสูง'], required:true },
+      { name:'signName', label:'ชื่อผู้ลงนาม (ดึงจากผู้ใช้บทบาทผู้บริหารอัตโนมัติ)', required:true, max:150 },
+      { name:'signPos', label:'ตำแหน่งผู้ลงนาม', type:'textarea', rows:2, required:true, max:300, full:true },
+      { name:'ownerUnit', label:'กลุ่มงาน', max:200 },
+      { name:'coord', label:'ผู้ประสาน', max:150 },
+      { name:'tel', label:'โทร', max:50 },
+      { name:'garuda', label:'ลิงก์รูปตราครุฑ (https://)', type:'url', max:1000, full:true, help:'ไม่ใส่ = เว้นที่ว่างสูง 3 ซม. สำหรับกระดาษที่พิมพ์ตราครุฑไว้แล้ว' },
+      { name:'digits', label:'ตัวเลขในหนังสือ', type:'select', options:[{ value:'th', label:'เลขไทย' }, { value:'ar', label:'เลขอารบิก' }], required:true }
+    ];
+  },
+  KEYS: ['no','date','orgHead','subject','to','refer','enclosure','p1','p2','p3','effDate','closing','signName','signPos','ownerUnit','coord','tel','garuda','digits'],
+  /** ค่าเริ่มต้นของฟอร์ม: ค่าที่จำไว้ในเครื่อง + ผู้ลงนาม + ข้อมูลหนังสือ + เนื้อหาที่บันทึกไว้แล้ว (letterData) */
+  async values(r, st){
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem('es_letter') || '{}') || {}; } catch (e) {}
+    delete saved.orgHead;
+    // ผู้ลงนาม: สาธารณสุขอำเภอ = ผู้ใช้บทบาท director ที่ใช้งานอยู่
+    const boss = (await activeUsers().catch(function(){ return []; })).find(function(u){ return u.role === 'director'; });
+    const vals = Object.assign({ p3:'จึงเรียนมาเพื่อโปรดทราบ', closing:'ขอแสดงความนับถือ', digits:'th' }, saved, boss ? { signName:boss.fullName, signPos:boss.department || 'สาธารณสุขอำเภอกู่แก้ว' } : {}, {
+      no: docNo(r, st.docPrefix), date: isoDay(r.documentDate || undefined), subject: r.subject, to: r.destinationOrg,
+      orgHead: (st.orgName || 'สำนักงานสาธารณสุขอำเภอกู่แก้ว') + '\nอำเภอกู่แก้ว จังหวัดอุดรธานี\n41130'
+    });
+    if (r.letterData) { try { Object.assign(vals, JSON.parse(r.letterData)); } catch (e) {} }
+    if (!vals.garuda) vals.garuda = 'https://i.ibb.co/BxF33p4/01.png'; // ตราครุฑเริ่มต้น
+    vals.no = docNo(r, st.docPrefix); // เลขที่หนังสือ: กำหนดอัตโนมัติเสมอ
+    return vals;
+  },
+  /** จำค่าที่ใช้ซ้ำไว้ในเครื่องนี้ (ไม่จำเนื้อหาหนังสือ) */
+  remember(v){
+    try { localStorage.setItem('es_letter', JSON.stringify({ closing:v.closing, signName:v.signName, signPos:v.signPos, ownerUnit:v.ownerUnit, coord:v.coord, tel:v.tel, garuda:v.garuda, digits:v.digits })); } catch (e) {}
+  },
+  pick(v){ const L = {}; Letter.KEYS.forEach(function(k){ L[k] = v[k] || ''; }); return L; },
+  isMemo(r, v){ return (r.documentType || v.documentType) === 'หนังสือราชการภายใน'; },
+  /** หนังสือภายใน (บันทึกข้อความ) A4 แนวตั้ง ตามระเบียบงานสารบรรณ — ครุฑสูง 1.5 ซม. มุมซ้ายบน */
+  memoHtml(r, v, E, secret, speed, paras){
+    const row = function(label, val){ return val ? '<div class="sp">' + label + '&nbsp;&nbsp;' + E(val) + '</div>' : ''; };
+    return '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>' + Letter.esc(r.subject) + '</title>' +
+      '<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">' +
+      '<style>@page{size:A4 portrait;margin:0}' +
+      'body{margin:0;padding:1.5cm 2cm 1.5cm 3cm;font-family:"TH Sarabun New","TH SarabunPSK","Sarabun",sans-serif;font-size:16pt;line-height:1.15;color:#000;overflow-wrap:anywhere;word-break:break-word}' +
+      '@media screen{html{background:#8a8f98}body{width:16cm;min-height:26.2cm;margin:16px auto;padding:1.5cm 2cm 2cm 3cm;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.3)}}' +
+      '.secret{text-align:center;color:#d00;font-weight:700;font-size:20pt}' +
+      '.top{position:relative;height:1.5cm}.top img{position:absolute;left:0;top:0;height:1.5cm}' +
+      '.title{text-align:center;font-weight:700;font-size:29pt;line-height:1.5cm}' +
+      '.speed{position:absolute;left:1.8cm;bottom:0;color:#d00;font-weight:700;font-size:20pt}' +
+      '.row{display:flex;gap:6pt;margin-top:4pt;align-items:flex-end}.row b{white-space:nowrap;font-size:20pt}' +
+      '.half{display:flex;flex:1;gap:6pt;align-items:flex-end}.ln{flex:1;border-bottom:1px dotted #000;padding:0 4pt}' +
+      '.to{margin-top:6pt}.sp{margin-top:6pt}.para{margin:6pt 0 0;text-indent:2.5cm;text-align:justify;text-justify:inter-character}' +
+      '.sign{margin-left:45%;width:50%;text-align:center;margin-top:4em;page-break-inside:avoid;break-inside:avoid}</style></head><body>' +
+      (secret ? '<div class="secret">' + E(secret) + '</div>' : '') +
+      '<div class="top">' + (v.garuda ? '<img src="' + Letter.esc(v.garuda) + '" alt="ครุฑ">' : '') + '<div class="title">บันทึกข้อความ</div>' + (speed ? '<div class="speed">' + E(speed) + '</div>' : '') + '</div>' +
+      '<div class="row"><b>ส่วนราชการ</b><span class="ln">' + E(String(v.orgHead || '').split('\n').join(' ')) + '</span></div>' +
+      '<div class="row"><div class="half"><b>ที่</b><span class="ln">' + E(v.no) + '</span></div><div class="half"><b>วันที่</b><span class="ln">' + E(Letter.thDate(v.date)) + '</span></div></div>' +
+      '<div class="row"><b>เรื่อง</b><span class="ln">' + E(v.subject) + '</span></div>' +
+      '<div class="to">เรียน&nbsp;&nbsp;' + E(v.to) + '</div>' + paras +
+      '<div class="sign"><div>(' + E(v.signName) + ')</div><div>' + E(v.signPos) + '</div></div>' +
+      (secret ? '<div class="secret" style="margin-top:12pt">' + E(secret) + '</div>' : '') +
+      '</body></html>';
+  },
+  isOrder(r, v){ return (r.documentType || v.documentType) === 'คำสั่ง'; },
+  /** คำสั่ง A4 แนวตั้ง ตามระเบียบงานสารบรรณ — ครุฑสูง 3 ซม. กึ่งกลาง ห่างขอบบน 1.5 ซม. */
+  orderHtml(r, v, E, secret, paras, ann){ // ann = ประกาศ (รูปแบบเดียวกับคำสั่ง แต่ไม่มีเลขที่และใช้ย่อหน้าตามที่กรอก)
+    const org = String(v.orgHead || '').split('\n')[0];
+    const d = Letter.thDate(v.date), sp = d.lastIndexOf(' ');
+    // คำสั่ง: ย่อหน้า 1–2 + "ทั้งนี้ ตั้งแต่วันที่ ... เป็นต้นไป" (แทนภาคสรุป)
+    if (!ann) paras = [v.p1, v.p2].filter(Boolean).map(function(p){ return '<p class="para">' + E(p) + '</p>'; }).join('') +
+      '<p class="para">ทั้งนี้&nbsp;&nbsp;ตั้งแต่' + (v.effDate ? 'วันที่&nbsp;&nbsp;' + E(Letter.thDate(v.effDate)) + '&nbsp;&nbsp;เป็นต้นไป' : '................................') + '</p>';
+    else paras = v.p1 ? '<p class="para">' + E(v.p1) + '</p>' : ''; // ประกาศ: เนื้อหาย่อหน้าเดียว
+    return '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>' + Letter.esc(r.subject) + '</title>' +
+      '<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">' +
+      '<style>@page{size:A4 portrait;margin:0}' +
+      'body{margin:0;padding:1.5cm 2cm 1.5cm 3cm;font-family:"TH Sarabun New","TH SarabunPSK","Sarabun",sans-serif;font-size:16pt;line-height:1.15;color:#000;overflow-wrap:anywhere;word-break:break-word}' +
+      '@media screen{html{background:#8a8f98}body{width:16cm;min-height:26.2cm;margin:16px auto;padding:1.5cm 2cm 2cm 3cm;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.3)}}' +
+      '.secret{text-align:center;color:#d00;font-weight:700;font-size:24pt}' +
+      '.head{height:3cm;text-align:center}.head img{height:3cm}' +
+      '.c{text-align:center}.t{margin-top:6pt}.line{width:5cm;margin:6pt auto 0;border-top:1px solid #000}' +
+      '.para{margin:6pt 0 0;text-indent:2.5cm;text-align:justify;text-justify:inter-character}' +
+      '.date{margin-left:35%;margin-top:12pt}' +
+      '.sign{margin-left:45%;width:50%;text-align:center;margin-top:4em;page-break-inside:avoid;break-inside:avoid}</style></head><body>' +
+      (secret ? '<div class="secret">' + E(secret) + '</div>' : '') +
+      '<div class="head">' + (v.garuda ? '<img src="' + Letter.esc(v.garuda) + '" alt="ครุฑ">' : '') + '</div>' +
+      '<div class="c t" style="font-weight:700">' + (ann ? 'ประกาศ' : 'คำสั่ง') + E(org) + '</div>' +
+      (ann ? '' : '<div class="c" style="font-weight:700">ที่&nbsp;&nbsp;' + E(v.no || '........../..........') + '</div>') +
+      '<div class="c" style="font-weight:700">เรื่อง&nbsp;&nbsp;' + E(v.subject) + '</div>' +
+      '<div class="line"></div>' + paras +
+      '<div class="date">' + (ann ? 'ประกาศ' : 'สั่ง') + '&nbsp;&nbsp;ณ&nbsp;&nbsp;วันที่&nbsp;&nbsp;' + E(d.slice(0, sp)) + '&nbsp;&nbsp;พ.ศ.&nbsp;&nbsp;' + E(d.slice(sp + 1)) + '</div>' +
+      '<div class="sign"><div>(' + E(v.signName) + ')</div><div>' + E(v.signPos) + '</div></div>' +
+      (secret ? '<div class="secret" style="margin-top:12pt">' + E(secret) + '</div>' : '') +
+      '</body></html>';
+  },
+  async open(r){
+    const st = await api('settings.get', {}, { toast:false }).catch(function(){ return {}; }) || {};
+    const vals = await Letter.values(r, st);
+    formModal('พิมพ์หนังสือราชการภายนอก: ' + r.subject, Letter.fields(), vals, async function(v){
+      v.no = vals.no;
+      Letter.remember(v);
+      Letter.print(r, v);
+    }, '🖨 พิมพ์');
+  },
+  print(r, v){
+    const N = v.digits === 'th' ? Letter.thNum : function(s){ return String(s == null ? '' : s); };
+    const E = function(s){ return Letter.esc(N(s)).split('\n').join('<br>'); };
+    const no = v.no;
+    const speed = r.urgency && r.urgency !== 'ปกติ' ? r.urgency : '';
+    const secret = r.confidentiality && r.confidentiality !== 'ปกติ' ? r.confidentiality : '';
+    const paras = [v.p1, v.p2, v.p3].filter(Boolean).map(function(p){ return '<p class="para">' + E(p) + '</p>'; }).join('');
+    const row = function(label, val){ return val ? '<div class="sp">' + label + '&nbsp;&nbsp;' + E(val) + '</div>' : ''; };
+    const ann = (r.documentType || v.documentType) === 'ประกาศ';
+    const html = Letter.isOrder(r, v) || ann ? Letter.orderHtml(r, v, E, secret, paras, ann) : Letter.isMemo(r, v) ?Letter.memoHtml(r, v, E, secret, speed, paras) : '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>' + Letter.esc(r.subject) + '</title>' +
+      '<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">' +
+      // margin:0 ที่ @page = ไม่ให้เบราว์เซอร์พิมพ์หัว/ท้ายกระดาษ (วันที่ ชื่อหน้า about:blank) — ระยะขอบย้ายไปไว้ที่ body แทน
+      '<style>@page{size:A4 portrait;margin:0}' +
+      'body{margin:0;padding:1.5cm 2cm 1.5cm 3cm;font-family:"TH Sarabun New","TH SarabunPSK","Sarabun",sans-serif;font-size:16pt;line-height:1.15;color:#000;overflow-wrap:anywhere;word-break:break-word}' +
+      '.sign,.foot{page-break-inside:avoid;break-inside:avoid}' +
+      '@media screen{html{background:#8a8f98}body{width:16cm;min-height:26.2cm;margin:16px auto;padding:1.5cm 2cm 2cm 3cm;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.3)}}' +
+      '.secret{text-align:center;color:#d00;font-weight:700;font-size:24pt}' +
+      '.head{position:relative;height:3cm;text-align:center}.head img{height:3cm}' +
+      '.speed{position:absolute;left:0;bottom:0;color:#d00;font-weight:700;font-size:24pt}' +
+      '.r1{display:flex;align-items:flex-start}.r1 .l{width:58%}.r1 .o{width:42%}' +
+      '.date{margin-left:47%;margin-top:6pt}.sp{margin-top:6pt}' +
+      '.para{margin:6pt 0 0;text-indent:2.5cm;text-align:justify;text-justify:inter-character}' +
+      '.sign{margin-left:35%;width:50%;text-align:center}.close{margin-top:12pt}.gap{height:3em}' +
+      '.foot{margin-top:2.5em}</style></head><body>' +
+      (secret ? '<div class="secret">' + E(secret) + '</div>' : '') +
+      '<div class="head">' + (v.garuda ? '<img src="' + Letter.esc(v.garuda) + '" alt="ครุฑ">' : '') + (speed ? '<div class="speed">' + E(speed) + '</div>' : '') + '</div>' +
+      '<div class="r1"><div class="l">ที่&nbsp;&nbsp;' + E(no) + '</div><div class="o">' + E(v.orgHead) + '</div></div>' +
+      '<div class="date">' + E(Letter.thDate(v.date)) + '</div>' +
+      row('เรื่อง', v.subject) + row('เรียน', v.to) + row('อ้างถึง', v.refer) + row('สิ่งที่ส่งมาด้วย', v.enclosure) + paras +
+      '<div class="sign"><div class="close">' + E(v.closing) + '</div><div class="gap"></div><div>(' + E(v.signName) + ')</div><div>' + E(v.signPos) + '</div></div>' +
+      '<div class="foot">' + (v.ownerUnit ? '<div>' + E(v.ownerUnit) + '</div>' : '') + (v.coord ? '<div>ผู้ประสาน ' + E(v.coord) + '</div>' : '') +
+      (v.tel ? '<div>โทร. ' + E(v.tel) + '</div>' : '') +
+      (v.cc ? '<div class="sp">สำเนาส่ง&nbsp;&nbsp;' + E(v.cc) + '</div>' : '') + '</div>' +
+      (secret ? '<div class="secret" style="margin-top:12pt">' + E(secret) + '</div>' : '') +
+      '</body></html>';
+    const w = window.open('', '_blank');
+    if (!w) { UI.toast('เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up', 'warn'); return; }
+    w.document.open(); w.document.write(html); w.document.close();
+    setTimeout(function(){ try { w.focus(); w.print(); } catch (e) {} }, 800);
+  }
+};
+const Outgoing = {
+  state: { page:1, f:{} },
+  /** เปิดทะเบียนตามประเภท (ส่งภายนอก/ภายใน/คำสั่ง/ประกาศ) — ทุกทะเบียนใช้ชีต Outgoing แยกด้วย documentType */
+  open(key, c){
+    if (Outgoing.page !== key) Outgoing.state = { page:1, f:{} };
+    Outgoing.page = key;
+    Outgoing.type = PAGES[key].docType || '';
+    return Outgoing.render(c);
+  },
+  q(){ return Outgoing.type ? { docType:Outgoing.type } : {}; },
+  async render(c){
+    const s = Outgoing.state;
+    const canWrite = Store.is('admin','director','officer');
+    c.appendChild(UI.section(PAGES[Outgoing.page || 'outgoing'].title, [
+      canWrite ? h('button', { class:'btn', text:'➕ สร้างหนังสือส่ง', onclick: function(){ Outgoing.openForm(); } }) : null,
+      h('button', { class:'btn sec', text:'⬇ ส่งออก CSV', onclick: function(e){ Outgoing.exportCSV(e.currentTarget); } }),
+      h('button', { class:'btn sec', text:'🖨 พิมพ์ทะเบียน', onclick: function(){ window.print(); } })
+    ]));
+    c.appendChild(h('div', { class:'notice', text:'การลงนาม: ระบบนี้บันทึก "สถานะ" การอนุมัติ/ลงนามเพื่อการติดตามเท่านั้น ไม่ใช่ลายมือชื่ออิเล็กทรอนิกส์ตามกฎหมาย หนังสือที่ต้องลงนามให้ดำเนินการลงนามจริง (ลายมือชื่อบนกระดาษ หรือระบบลงนามอิเล็กทรอนิกส์ที่หน่วยงานรับรอง) แล้วแนบลิงก์ไฟล์ที่ลงนามแล้ว' }));
+    const q = h('input', { placeholder:'ค้นหา เลขส่ง / เรื่อง / หน่วยงานปลายทาง', value:s.f.search || '', maxlength:100 });
+    const st = h('select', null, h('option', { value:'', text:'ทุกสถานะ' }), STATUS_OUTGOING.map(function(x){ return h('option', { value:x, text:x, selected:s.f.status === x }); }));
+    const ty = h('select', null, h('option', { value:'', text:'ทุกประเภท' }), DOC_TYPES.map(function(x){ return h('option', { value:x, text:x, selected:s.f.docType === x }); }));
+    const df = h('input', { type:'date', value:s.f.dateFrom || '' }), dt = h('input', { type:'date', value:s.f.dateTo || '' });
+    const go = function(){ s.f = { search:q.value.trim(), status:st.value, docType:ty.value, dateFrom:df.value, dateTo:dt.value }; s.page = 1; Router.go('outgoing'); };
+    q.addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
+    c.appendChild(h('div', { class:'toolbar' }, h('div', { class:'field grow' }, h('label', { text:'คำค้น' }), q),
+      h('div', { class:'field' }, h('label', { text:'สถานะ' }), st), Outgoing.type ? null : h('div', { class:'field' }, h('label', { text:'ประเภท' }), ty),
+      h('div', { class:'field' }, h('label', { text:'ส่งตั้งแต่' }), df), h('div', { class:'field' }, h('label', { text:'ถึง' }), dt),
+      h('button', { class:'btn', text:'ค้นหา', onclick:go }),
+      h('button', { class:'btn sec', text:'ล้าง', onclick: function(){ s.f = {}; s.page = 1; Router.go('outgoing'); } })));
+    const holder = h('div'); c.appendChild(holder);
+    await activeUsers().catch(function(){ return []; });
+    if (Outgoing.prefix === undefined) Outgoing.prefix = ((await api('settings.get', {}, { loading:false, toast:false }).catch(function(){ return {}; })) || {}).docPrefix || '';
+    const d = await api('outgoing.list', Object.assign({ page:s.page, pageSize:PAGE_SIZE }, s.f, Outgoing.q()), { loadingText: s.f.search ? 'กำลังค้นหา...' : 'กำลังโหลดข้อมูล...', toast:false });
+    holder.appendChild(UI.table([
+      { label:'เลขส่ง', render: function(r){ return r.sendNo ? h('b', { text: docNo(r, Outgoing.prefix) }) : h('span', { class:'badge b-gray', text: r.documentType === 'ประกาศ' ? '-' : 'ยังไม่ออกเลข' }); } },
+      { label:'วันที่ส่ง', render: function(r){ return fmtDate(r.sendDate || r.documentDate); } },
+      { label:'ถึง', key:'destinationOrg' },
+      { label:'เรื่อง', cls:'subj', key:'subject' },
+      { label:'สถานะ', render: function(r){ return statusBadge(r.status); } },
+      { label:'', render: function(r){ return h('button', { class:'btn sm sec no-print', text:'ดู', onclick: function(){ Outgoing.openDetail(r.id); } }); } }
+    ], d.records, s.f.search || s.f.status ? 'ไม่พบรายการที่ตรงกับเงื่อนไข' : 'ยังไม่มีข้อมูลในระบบ'));
+    holder.appendChild(UI.pager(d.total, d.page, d.pageSize, function(p){ s.page = p; Router.go('outgoing'); }));
+  },
+  async openForm(rec){
+    const users = await activeUsers().catch(function(){ return []; });
+    const editable = !rec || ['ร่าง','ส่งกลับแก้ไข'].indexOf(rec.status) >= 0 || Store.is('admin');
+    if (!editable) { UI.toast('แก้ไขได้เฉพาะหนังสือสถานะร่างหรือส่งกลับแก้ไข', 'warn'); return; }
+    // หน้าสร้างหนังสือส่ง = แบบฟอร์มหนังสือราชการภายนอก (กรอกครั้งเดียว บันทึก/เสนอ/พิมพ์ได้)
+    const st = await api('settings.get', {}, { toast:false }).catch(function(){ return {}; }) || {};
+    const lv = await Letter.values(rec || {}, st);
+    const fields = [
+      { name:'documentType', label:'ประเภทหนังสือ (ทะเบียนที่บันทึก)', type:'select', options:['หนังสือราชการภายนอก','หนังสือราชการภายใน','คำสั่ง','ประกาศ'], required:true, value: Outgoing.type || 'หนังสือราชการภายนอก', readonly: !!rec, full:true }
+    ].concat(Letter.fields()).concat([
+      { name:'attachmentUrl', label:'ลิงก์ไฟล์หนังสือที่ลงนามแล้ว (ถ้ามี)', type:'url', max:1000, full:true }
+    ]);
+    const m = UI.modal(rec ? 'แก้ไขหนังสือส่ง' : 'สร้างหนังสือส่ง');
+    const form = buildForm(fields, Object.assign({}, lv, rec ? { documentType:rec.documentType, attachmentUrl:rec.attachmentUrl } : {}));
+    m.body.appendChild(form);
+    // หนังสือใหม่: แสดงเลขถัดไปของทะเบียนในช่อง "ที่" (เช่น อด.1932/15) — เลขจริงยืนยันเมื่อกดบันทึก
+    if (!rec) {
+      const showNo = function(){
+        const t = form.elements.documentType.value;
+        api('outgoing.nextNo', { documentType:t }, { loading:false, toast:false }).then(function(n){
+          lv.no = n && n.no ? docNo({ sendNo:n.no, sendYear:n.year, documentType:t }, st.docPrefix) : '';
+          form.elements.no.value = lv.no;
+        }).catch(function(){});
+      };
+      form.elements.documentType.addEventListener('change', showNo);
+      showNo();
+    }
+    // ทะเบียนหนังสือส่งภายใน: ซ่อนช่องที่ไม่ใช้ (อ้างถึง/สิ่งที่ส่งมาด้วย/กลุ่มงาน/ผู้ประสาน/โทร/ลิงก์ไฟล์)
+    const INT_DROP = ['refer','enclosure','ownerUnit','coord','tel','attachmentUrl'];
+    const isInt = function(t){ return t === 'หนังสือราชการภายใน' || t === 'คำสั่ง' || t === 'ประกาศ'; }; // ภายใน + คำสั่ง + ประกาศ ไม่ใช้ช่องเหล่านี้
+    const toggleInt = function(){
+      const hide = isInt(form.elements.documentType.value);
+      const ord = form.elements.documentType.value === 'คำสั่ง';
+      const show = function(k, on){ const el = form.elements[k]; const w = el && (el.closest('.field') || el.parentNode); if (w) w.style.display = on ? '' : 'none'; };
+      INT_DROP.forEach(function(k){ show(k, !hide); });
+      const ann = form.elements.documentType.value === 'ประกาศ';
+      show('p3', !ord && !ann); show('effDate', ord); // คำสั่ง: ภาคสรุป = ทั้งนี้ ตั้งแต่ (วันที่)
+      ['no','p2','closing'].forEach(function(k){ show(k, !ann); }); // ประกาศ: ไม่มีเลขที่/ย่อหน้า 2–3/คำลงท้าย
+    };
+    form.elements.documentType.addEventListener('change', toggleInt);
+    toggleInt();
+    const pack = function(v){
+      Letter.remember(v);
+      const ld = Letter.pick(v);
+      if (isInt(v.documentType)) INT_DROP.forEach(function(k){ delete ld[k]; });
+      if (v.documentType === 'คำสั่ง') delete ld.p3; else delete ld.effDate;
+      if (v.documentType === 'ประกาศ') ['no','p2','p3','closing'].forEach(function(k){ delete ld[k]; });
+      return Object.assign({ documentType:v.documentType, destinationOrg:v.to, subject:v.subject, documentDate:v.date, letterData:JSON.stringify(ld) },
+        isInt(v.documentType) ? {} : { attachmentUrl:v.attachmentUrl });
+    };
+    const save = function(submit, btn){
+      const v = readForm(form); if (!v) return;
+      v.no = lv.no;
+      runAction(btn, async function(){
+        const d = pack(v);
+        if (rec) await api('outgoing.update', Object.assign({ id:rec.id }, d, submit ? { status:'รอเสนอ', note:'เสนอพิจารณา' } : {}), { loadingText:'กำลังแก้ไขรายการ...' });
+        else await api('outgoing.create', Object.assign({}, d, { status: submit ? 'รอเสนอ' : 'ร่าง' }), { loadingText:'กำลังบันทึกข้อมูล...' });
+        m.close(); Router.go('outgoing');
+      });
+    };
+    m.foot.appendChild(h('button', { class:'btn sec', text:'ยกเลิก', onclick: function(){ m.close(); } }));
+    m.foot.appendChild(h('button', { class:'btn sec', text:'🖨 พิมพ์', onclick: function(){ const v = readForm(form); if (!v) return; v.no = lv.no; Letter.remember(v); Letter.print({ subject:v.subject, urgency:v.urgency, confidentiality:v.confidentiality, documentType: v.documentType || (rec && rec.documentType) }, v); } }));
+    m.foot.appendChild(h('button', { class:'btn sec', text:'💾 บันทึกร่าง', onclick: function(e){ save(false, e.currentTarget); } }));
+    m.foot.appendChild(h('button', { class:'btn', text:'📨 บันทึกและเสนอ', onclick: function(e){ save(true, e.currentTarget); } }));
+  },
+  async openDetail(id){
+    const r = await api('outgoing.get', { id:id }, { toast:false });
+    await activeUsers().catch(function(){ return []; });
+    const m = UI.modal(r.sendNo ? r.documentType + ' ที่ ' + docNo(r, Outgoing.prefix) : r.documentType || 'หนังสือส่ง');
+    m.body.appendChild(UI.kv([
+      ['สถานะ', statusBadge(r.status)], ['เรื่อง', r.subject], ['ถึง', r.destinationOrg], ['ประเภท', r.documentType],
+      ['วันที่ส่ง', fmtDate(r.sendDate)], ['ลงวันที่', fmtDate(r.documentDate)], ['ไฟล์', safeLink(r.attachmentUrl)],
+      ['หนังสือที่เกี่ยวข้อง', r.relatedDocumentIds], ['บันทึก', h('div', { style:'white-space:pre-wrap', text:r.remarks || '-' })],
+      ['สร้างโดย', userName(r.createdBy) + ' — ' + fmtDateTime(r.createdAt)]
+    ]));
+    Workflow.buttons(m, 'outgoing', r, OUTGOING_FLOW, function(){ m.close(); Router.go('outgoing'); });
+    if ((r.letterData || r.documentType === 'หนังสือราชการภายนอก') && Store.is('admin','director','officer')) m.foot.appendChild(h('button', { class:'btn sec', text:'🖨 พิมพ์หนังสือ', onclick: function(){ Letter.open(r); } }));
+    if (Store.is('admin','director','officer') && (['ร่าง','ส่งกลับแก้ไข'].indexOf(r.status) >= 0 || Store.is('admin')))
+      m.foot.appendChild(h('button', { class:'btn sec', text:'✏️ แก้ไข', onclick: function(){ m.close(); Outgoing.openForm(r); } }));
+    if (Store.is('admin','director')) m.foot.appendChild(h('button', { class:'btn bad', text:'ยกเลิกรายการ', onclick: async function(e){
+      const reason = await UI.confirm('ยืนยันการยกเลิก', 'รายการจะถูกทำเครื่องหมายยกเลิกและเก็บประวัติไว้ เลขที่ออกไปแล้วจะไม่ถูกนำกลับมาใช้ซ้ำ', { danger:true, reason:true, okText:'ยกเลิกรายการ' });
+      if (!reason) return;
+      runAction(e.target, async function(){ await api('outgoing.delete', { id:r.id, reason:reason }, { loadingText:'กำลังบันทึกข้อมูล...' }); m.close(); Router.go('outgoing'); });
+    } }));
+  },
+  async exportCSV(btn){
+    runAction(btn, async function(){
+      const d = await api('outgoing.list', Object.assign({ page:1, pageSize:5000 }, Outgoing.state.f, Outgoing.q()), { loadingText:'กำลังประมวลผลรายงาน...', toast:false });
+      if (!d.records.length) { UI.toast('ไม่มีข้อมูลให้ส่งออก', 'warn'); return; }
+      const rows = d.records.map(function(r){ return Object.assign({}, r, { no: docNo(r, Outgoing.prefix), sendDate: fmtDate(r.sendDate || r.documentDate), documentDate: fmtDate(r.documentDate), responsiblePerson: userName(r.responsiblePerson) }); });
+      downloadCSV('ทะเบียนหนังสือส่ง_' + isoDay() + '.csv', [['no','เลขส่ง'],['sendDate','วันที่ส่ง'],['documentDate','ลงวันที่'],['destinationOrg','ถึง'],['subject','เรื่อง'],['documentType','ประเภท'],['urgency','ความเร่งด่วน'],['confidentiality','ชั้นความลับ'],['responsiblePerson','ผู้รับผิดชอบ'],['status','สถานะ']], rows);
+    });
+  }
+};
+
+/* =====================================================================
+   TASKS — งานและการติดตาม
+   ===================================================================== */
+const Tasks = {
+  state: { page:1, f:{} },
+  async render(c){
+    const s = Tasks.state;
+    c.appendChild(UI.section(Store.is('officer') ? 'งานของฉัน' : 'งานและการติดตาม'));
+    const users = await activeUsers().catch(function(){ return []; });
+    const q = h('input', { placeholder:'ค้นหาชื่องาน', value:s.f.search || '', maxlength:100 });
+    const st = h('select', null, h('option', { value:'', text:'ทุกสถานะ' }), STATUS_TASK.map(function(x){ return h('option', { value:x, text:x, selected:s.f.status === x }); }));
+    const as = h('select', null, h('option', { value:'', text:'ทุกคน' }), userOptions(users).map(function(o){ return h('option', { value:o.value, text:o.label, selected:s.f.assignee === o.value }); }));
+    const go = function(){ s.f = { search:q.value.trim(), status:st.value, assignee: Store.is('officer') ? '' : as.value }; s.page = 1; Router.go('tasks'); };
+    q.addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
+    c.appendChild(h('div', { class:'toolbar' }, h('div', { class:'field grow' }, h('label', { text:'คำค้น' }), q),
+      h('div', { class:'field' }, h('label', { text:'สถานะ' }), st),
+      Store.is('officer') ? null : h('div', { class:'field' }, h('label', { text:'ผู้รับผิดชอบ' }), as),
+      h('button', { class:'btn', text:'ค้นหา', onclick:go }),
+      h('button', { class:'btn sec', text:'ล้าง', onclick: function(){ s.f = {}; s.page = 1; Router.go('tasks'); } })));
+    const holder = h('div'); c.appendChild(holder);
+    const d = await api('tasks.list', Object.assign({ page:s.page, pageSize:PAGE_SIZE }, s.f), { toast:false });
+    holder.appendChild(UI.table([
+      { label:'งาน', cls:'subj', render: function(r){ return h('a', { href:'#', text:r.taskTitle, onclick: function(e){ e.preventDefault(); Tasks.openDetail(r.id); } }); } },
+      { label:'ผู้รับผิดชอบ', render: function(r){ return userName(r.assignee); } },
+      { label:'ผู้มอบหมาย', render: function(r){ return userName(r.assignedBy); } },
+      { label:'สถานะ', render: function(r){ return [statusBadge(r.status), r.displayStatus !== r.status ? [' ', statusBadge(r.displayStatus)] : null]; } }
+    ], d.records, 'ยังไม่มีงานในระบบ'));
+    holder.appendChild(UI.pager(d.total, d.page, d.pageSize, function(p){ s.page = p; Router.go('tasks'); }));
+  },
+  async openForm(pre, rec){
+    if (!Store.is('admin','director')) { UI.toast('มอบหมายงานได้เฉพาะผู้บริหาร', 'warn'); return; }
+    const users = await activeUsers().catch(function(){ return []; });
+    pre = pre || {};
+    const base = rec || pre;
+    const chk = rec ? null : h('input', { type:'checkbox' });
+    const fm = formModal(rec ? 'แก้ไขงาน' : 'ลงนามมอบหมายงาน', [
+      { name:'taskTitle', label:'ชื่องาน', required:true, max:300, full:true },
+      { name:'description', label:'รายละเอียด / ข้อสั่งการ', type:'textarea', max:2000, full:true },
+      { name:'assignee', label:'ผู้รับผิดชอบ', type:'select', options:userOptions(users), required:true },
+      { name:'startDate', label:'วันที่เริ่ม', type:'date', value: isoDay(), readonly: !!rec }
+    ], base, async function(v){
+      if (chk && !chk.checked) { UI.toast('กรุณายืนยันการลงนามมอบหมาย', 'warn'); throw Object.assign(new Error(''), { handled:true }); }
+      if (rec) await api('tasks.update', Object.assign({ id:rec.id }, v), { loadingText:'กำลังแก้ไขรายการ...' });
+      else await api('tasks.create', Object.assign({ documentType:pre.documentType || '', documentId:pre.documentId || '' }, v), { loadingText:'กำลังบันทึกการลงนาม...' });
+      Router.go('tasks');
+    }, rec ? 'บันทึก' : '✍️ ลงนามมอบหมาย');
+    if (chk) {
+      fm.body.appendChild(h('label', { style:'display:flex;gap:8px;margin-top:12px;font-weight:600' }, chk, 'ข้าพเจ้า (' + Store.user.fullName + ') ลงนามมอบหมายงานนี้ให้ผู้รับผิดชอบ'));
+      fm.body.appendChild(h('small', { style:'color:var(--muted)', text:'เป็นการบันทึกการลงนามในระบบเพื่อการติดตาม ไม่ใช่ลายมือชื่ออิเล็กทรอนิกส์ตามกฎหมาย' }));
+    }
+  },
+  async openDetail(id){
+    const r = await api('tasks.get', { id:id }, { toast:false });
+    await activeUsers().catch(function(){ return []; });
+    const me = Store.user.username;
+    const isAssignee = r.assignee === me, isBoss = Store.is('admin','director') || r.assignedBy === me;
+    const open = ['เสร็จสิ้น','ยกเลิก'].indexOf(r.status) < 0;
+    const m = UI.modal('รายละเอียดงาน');
+    m.body.appendChild(UI.kv([
+      ['ชื่องาน', r.taskTitle], ['สถานะ', statusBadge(r.status)], ['รายละเอียด', h('div', { style:'white-space:pre-wrap', text:r.description || '-' })],
+      ['ผู้รับผิดชอบ', userName(r.assignee)], ['ลงนามมอบหมายโดย', userName(r.assignedBy) + ' — ' + fmtDateTime(r.createdAt)],
+      ['เริ่ม', fmtDate(r.startDate)],
+      ['ผลการดำเนินงาน', h('div', { style:'white-space:pre-wrap', text:r.result || '-' })],
+      ['หลักฐาน', safeLink(r.evidenceUrl)], ['เสร็จเมื่อ', r.completedAt ? fmtDateTime(r.completedAt) : '-'],
+      r.documentId ? ['เอกสารต้นเรื่อง', h('a', { href:'#', text:'เปิดหนังสือต้นเรื่อง', onclick: function(e){ e.preventDefault(); m.close(); (r.documentType === 'outgoing' ? Outgoing : Incoming).openDetail(r.documentId).catch(function(x){ if (!x.handled) UI.toast(x.message, 'bad'); }); } })] : null
+    ]));
+    m.body.appendChild(h('h3', { style:'margin:18px 0 8px;font-size:15px', text:'ประวัติ' }));
+    m.body.appendChild(UI.history(r.history));
+    const refresh = function(){ m.close(); Router.go(Router.current); };
+    if (open && isAssignee) m.foot.appendChild(h('button', { class:'btn sec', text:'📝 รายงานผลการดำเนินงาน', onclick: function(){
+      formModal('รายงานผลการดำเนินงาน', [
+        { name:'result', label:'ผลการดำเนินงาน', type:'textarea', required:true, max:3000, full:true },
+        { name:'evidenceUrl', label:'ลิงก์หลักฐาน (https://)', type:'url', max:1000, full:true }
+      ], { result:r.result, evidenceUrl:r.evidenceUrl }, async function(v){
+        await api('tasks.update', Object.assign({ id:r.id }, v), { loadingText:'กำลังบันทึกข้อมูล...' });
+        if (r.status === 'มอบหมายแล้ว' || r.status === 'ส่งกลับแก้ไข') await api('tasks.updateStatus', { id:r.id, status:'กำลังดำเนินการ' }, { toast:false });
+        refresh();
+      });
+    } }));
+    const next = [];
+    if (open && isAssignee && ['มอบหมายแล้ว','ส่งกลับแก้ไข'].indexOf(r.status) >= 0) next.push('กำลังดำเนินการ');
+    if (open && isAssignee && r.status === 'กำลังดำเนินการ') next.push('รอผลตรวจสอบ');
+    if (open && isBoss) ['เสร็จสิ้น','ส่งกลับแก้ไข','ยกเลิก'].forEach(function(x){ if (x !== r.status) next.push(x); });
+    next.forEach(function(st){
+      m.foot.appendChild(h('button', { class:'btn ' + (st === 'เสร็จสิ้น' ? 'ok' : st === 'ยกเลิก' || st === 'ส่งกลับแก้ไข' ? 'warn' : ''), text: st === 'รอผลตรวจสอบ' ? 'ส่งตรวจผล' : st === 'เสร็จสิ้น' ? 'ตรวจผลและปิดงาน' : st, onclick: function(){
+        formModal('เปลี่ยนสถานะเป็น "' + st + '"', [{ name:'note', label:'บันทึก', type:'textarea', max:1000, full:true, required: st === 'ส่งกลับแก้ไข' || st === 'ยกเลิก' }], {}, async function(v){
+          await api('tasks.updateStatus', { id:r.id, status:st, note:v.note }, { loadingText:'กำลังบันทึกข้อมูล...' }); refresh();
+        }, 'ยืนยัน');
+      } }));
+    });
+    if (open && isBoss) m.foot.appendChild(h('button', { class:'btn sec', text:'✏️ แก้ไข/ส่งต่อ', onclick: function(){ m.close(); Tasks.openForm(null, r); } }));
+  }
+};
+
+/* =====================================================================
+   CIRCULARS — หนังสือเวียน (อ่านแล้ว ≠ รับทราบแล้ว)
+   ===================================================================== */
+const Circulars = {
+  state: { page:1, mine:true, status:'' },
+  async render(c){
+    const s = Circulars.state;
+    const canCreate = Store.is('admin','director','officer');
+    c.appendChild(UI.section('หนังสือเวียน', canCreate ? h('button', { class:'btn', text:'🔁 สร้างหนังสือเวียน', onclick: function(){ Circulars.openForm(); } }) : null));
+    const st = h('select', null, h('option', { value:'', text:'ทุกสถานะ' }), ['ยังไม่เปิดอ่าน','อ่านแล้ว','รับทราบแล้ว','ดำเนินการแล้ว','ยกเลิก'].map(function(x){ return h('option', { value:x, text:x, selected:s.status === x }); }));
+    st.addEventListener('change', function(){ s.status = st.value; s.page = 1; Router.go('circulars'); });
+    c.appendChild(h('div', { class:'toolbar' },
+      h('button', { class:'btn ' + (s.mine ? '' : 'sec'), text:'ส่งถึงฉัน', onclick: function(){ s.mine = true; s.page = 1; Router.go('circulars'); } }),
+      h('button', { class:'btn ' + (s.mine ? 'sec' : ''), text: Store.is('admin','director') ? 'ติดตามทั้งหมด' : 'ที่ฉันส่ง/เกี่ยวข้อง', onclick: function(){ s.mine = false; s.page = 1; Router.go('circulars'); } }),
+      h('div', { class:'field' }, h('label', { text:'สถานะ' }), st)));
+    const holder = h('div'); c.appendChild(holder);
+    await activeUsers().catch(function(){ return []; });
+    const d = await api('circulars.list', { page:s.page, pageSize:PAGE_SIZE, myOnly:s.mine, status:s.status }, { toast:false });
+    if (d.ackRate !== undefined && !s.mine) holder.appendChild(h('div', { class:'info', text:'อัตราการรับทราบ (ตามตัวกรอง): ' + d.ackRate + '% — รับทราบ ' + d.ackCount + ' จาก ' + d.totalAll + ' รายการ' }));
+    const me = Store.user.username;
+    holder.appendChild(UI.table([
+      { label:'เรื่อง', cls:'subj', key:'circularTitle' },
+      { label:'ผู้รับ', render: function(r){ return userName(r.recipientUsername); } },
+      { label:'ผู้ส่ง', render: function(r){ return userName(r.createdBy); } },
+      { label:'ส่งเมื่อ', render: function(r){ return fmtDateTime(r.createdAt); } },
+      { label:'อ่านเมื่อ', render: function(r){ return r.readAt ? fmtDateTime(r.readAt) : '-'; } },
+      { label:'รับทราบเมื่อ', render: function(r){ return r.acknowledgedAt ? fmtDateTime(r.acknowledgedAt) : '-'; } },
+      { label:'สถานะ', render: function(r){ return statusBadge(r.status); } },
+      { label:'', render: function(r){
+        const box = h('div', { style:'display:flex;gap:4px;flex-wrap:wrap' });
+        const act = function(type, label, cls){ return h('button', { class:'btn sm ' + (cls || 'sec'), text:label, onclick: function(e){ runAction(e.currentTarget, async function(){ await api('circulars.acknowledge', { id:r.id, ackType:type }, { loadingText:'กำลังบันทึกข้อมูล...' }); Router.go('circulars'); }); } }); };
+        if (r.status !== 'ยกเลิก' && r.recipientUsername === me) {
+          if (r.status === 'ยังไม่เปิดอ่าน') box.appendChild(act('read', 'เปิดอ่าน'));
+          if (!r.acknowledgedAt) box.appendChild(act('acknowledge', 'รับทราบ', 'ok'));
+          else if (r.status !== 'ดำเนินการแล้ว') box.appendChild(act('done', 'ดำเนินการแล้ว'));
+          if (r.documentId && r.status === 'ยังไม่เปิดอ่าน') { /* ต้องกดเปิดอ่านก่อนจึงเปิดเอกสาร */ }
+          else if (r.documentId) box.appendChild(h('button', { class:'btn sm ghost', text:'เอกสาร', onclick: function(){ (r.documentType === 'outgoing' ? Outgoing : Incoming).openDetail(r.documentId).catch(function(x){ if (!x.handled) UI.toast(x.message, 'bad'); }); } }));
+        }
+        if (r.status !== 'ยกเลิก' && (r.createdBy === me || Store.is('admin','director'))) {
+          if (!r.acknowledgedAt) box.appendChild(act('remind', 'แจ้งเตือนซ้ำ'));
+          box.appendChild(h('button', { class:'btn sm ghost', text:'ยกเลิก', onclick: async function(e){ const t = e.currentTarget; if (await UI.confirm('ยกเลิกการส่งถึงผู้รับรายนี้', 'ยืนยันยกเลิกการเวียนถึง ' + userName(r.recipientUsername) + ' ?', { danger:true })) runAction(t, async function(){ await api('circulars.acknowledge', { id:r.id, ackType:'cancel' }, { loadingText:'กำลังบันทึกข้อมูล...' }); Router.go('circulars'); }); } }));
+        }
+        return box;
+      } }
+    ], d.records, 'ยังไม่มีหนังสือเวียน'));
+    holder.appendChild(UI.pager(d.total, d.page, d.pageSize, function(p){ s.page = p; Router.go('circulars'); }));
+  },
+  async openForm(pre){
+    pre = pre || {};
+    const users = (await activeUsers().catch(function(){ return []; })).filter(function(u){ return u.username !== Store.user.username; });
+    const m = UI.modal('สร้างหนังสือเวียน');
+    const form = buildForm([{ name:'circularTitle', label:'เรื่อง', required:true, max:500, full:true }], pre);
+    m.body.appendChild(form);
+    const checks = users.map(function(u){ return h('input', { type:'checkbox', value:u.username }); });
+    const all = h('input', { type:'checkbox', onchange: function(){ checks.forEach(function(x){ x.checked = all.checked; }); } });
+    const err = h('div', { class:'msg', style:'color:var(--bad);font-size:12.5px' });
+    m.body.appendChild(h('div', { class:'field', style:'margin-top:12px' }, h('label', null, 'ผู้รับ ', h('span', { class:'req', text:'*' })),
+      h('div', { class:'check-list' }, h('label', null, all, h('b', { text:'เลือกทั้งหมด' })), users.map(function(u, i){ return h('label', null, checks[i], u.fullName + (u.department ? ' — ' + u.department : '')); })), err));
+    const btn = h('button', { class:'btn', text:'ส่งหนังสือเวียน' });
+    btn.addEventListener('click', function(){
+      const v = readForm(form); if (!v) return;
+      const rec = checks.filter(function(x){ return x.checked; }).map(function(x){ return x.value; });
+      if (!rec.length) { err.textContent = 'กรุณาเลือกผู้รับอย่างน้อย 1 คน'; return; }
+      err.textContent = '';
+      runAction(btn, async function(){ await api('circulars.create', { circularTitle:v.circularTitle, recipients:rec, documentId:pre.documentId || '', documentType:pre.documentType || '' }, { loadingText:'กำลังส่งคำสั่ง...' }); m.close(); Circulars.state.mine = false; Router.go('circulars'); });
+    });
+    m.foot.appendChild(h('button', { class:'btn sec', text:'ยกเลิก', onclick: function(){ m.close(); } }));
+    m.foot.appendChild(btn);
+  }
+};
+
+/* =====================================================================
+   USERS — จัดการผู้ใช้ (admin)
+   ===================================================================== */
+const Users = {
+  async render(c){
+    c.appendChild(UI.section('จัดการผู้ใช้', h('button', { class:'btn', text:'➕ เพิ่มผู้ใช้', onclick: function(){ Users.openForm(); } })));
+    const d = await api('users.list', {}, { toast:false });
+    c.appendChild(UI.table([
+      { label:'Username', render: function(r){ return h('code', { text:r.username }); } },
+      { label:'ชื่อ–นามสกุล', key:'fullName' },
+      { label:'ตำแหน่ง', key:'department' },
+      // รหัสผ่านเข้าระบบ (ส่งมาเฉพาะ admin) — ซ่อนไว้ กดเพื่อแสดง
+      { label:'รหัสผ่าน', render: function(r){
+        if (!r.password) return h('span', { style:'color:var(--muted)', text:'(ยังไม่มี — ตั้งใหม่ด้วยรีเซ็ตรหัส)' });
+        const t = h('code', { text:'••••••••' });
+        return h('span', null, t, ' ', h('button', { class:'btn sm ghost', text:'แสดง', onclick: function(e){ const show = t.textContent !== r.password; t.textContent = show ? r.password : '••••••••'; e.currentTarget.textContent = show ? 'ซ่อน' : 'แสดง'; } }));
+      } },
+      { label:'บทบาท', render: function(r){ return h('span', { class:'badge b-blue', text:ROLE_LABEL[r.role] || r.role }); } },
+      { label:'สร้างเมื่อ', render: function(r){ return fmtDate(r.createdAt); } },
+      { label:'', render: function(r){
+        const on = String(r.isActive).toUpperCase() !== 'FALSE', self = r.username === Store.user.username;
+        return h('div', { style:'display:flex;gap:4px;flex-wrap:wrap' },
+          h('button', { class:'btn sm sec', text:'แก้ไข', onclick: function(){ Users.openForm(r); } }),
+          h('button', { class:'btn sm sec', text:'รีเซ็ตรหัส', onclick: function(){ Users.resetPw(r); } }),
+          self ? null : h('button', { class:'btn sm ' + (on ? 'warn' : 'ok'), text: on ? 'ระงับ' : 'เปิดใช้', onclick: async function(e){ const t = e.currentTarget; if (await UI.confirm(on ? 'ระงับบัญชี' : 'เปิดใช้บัญชี', (on ? 'ระงับ' : 'เปิดใช้') + 'บัญชี ' + r.username + ' ?', { danger:on })) runAction(t, async function(){ await api('users.toggleStatus', { username:r.username }, { loadingText:'กำลังบันทึกข้อมูล...' }); _userCache = null; Router.go('users'); }); } }));
+      } }
+    ], d.records, 'ยังไม่มีผู้ใช้'));
+  },
+  openForm(rec){
+    const roles = Object.keys(ROLE_LABEL).map(function(k){ return { value:k, label:ROLE_LABEL[k] + ' (' + k + ')' }; });
+    const fields = [
+      { name:'username', label:'Username', required:true, max:30, readonly: !!rec, pattern:/^[a-z0-9_]{3,30}$/, patternMsg:'ใช้ a-z, 0-9, _ ยาว 3–30 ตัว (ตัวพิมพ์เล็ก)' },
+      { name:'fullName', label:'ชื่อ–นามสกุล', required:true, max:150 },
+      { name:'department', label:'ตำแหน่ง', max:150 },
+      { name:'role', label:'บทบาท', type:'select', options:roles, required:true, value:'officer' }
+    ];
+    if (!rec) fields.push({ name:'initialPassword', label:'รหัสผ่าน', type:'password', required:true, max:64, pattern:PW_RULE, patternMsg:'อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข', help:'ผู้ใช้เข้าสู่ระบบด้วยรหัสนี้ได้ทันที' });
+    else fields.push({ name:'newPassword', label:'รหัสผ่านปัจจุบัน', type:'password', max:64, value: rec.password || '', pattern:PW_RULE, patternMsg:'อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข', help: rec.password ? 'กด "แสดง" เพื่อดูรหัสผ่าน — แก้ไขในช่องนี้เพื่อเปลี่ยนรหัส' : 'ยังไม่มีรหัสที่บันทึกไว้ (บัญชีเดิม) — กรอกเพื่อตั้งรหัสใหม่' });
+    let sigData = '', sigClear = false;
+    const fm = formModal(rec ? 'แก้ไขผู้ใช้ ' + rec.username : 'เพิ่มผู้ใช้', fields, rec || {}, async function(v){
+      if (rec && v.newPassword === (rec.password || '')) delete v.newPassword;
+      if (rec) await api('users.update', Object.assign({ username:rec.username }, v, sigData ? { signatureData:sigData } : sigClear ? { signatureClear:true } : {}), { loadingText:'กำลังแก้ไขรายการ...' });
+      else await api('users.create', v, { loadingText:'กำลังบันทึกข้อมูล...' });
+      _userCache = null; Router.go('users');
+    });
+    // ผู้บริหาร (director): แนบลายเซ็นสแกนเก็บไว้ ใช้อัตโนมัติตอนลงนามสั่งการ
+    if (rec && rec.role === 'director') {
+      const pv = h('canvas', { width:500, height:160, style:'border:1px dashed #9aa7bd;border-radius:8px;background:#fff;width:100%;max-width:500px' });
+      const st = h('div', { style:'font-size:13px;color:#667085;margin:4px 0', text: rec.hasSignature ? 'มีลายเซ็นที่บันทึกไว้แล้ว — แนบไฟล์ใหม่เพื่อแทนที่ (ไฟล์เดิมใน Drive จะถูกลบ)' : 'ยังไม่มีลายเซ็นที่บันทึกไว้' });
+      const fi = h('input', { type:'file', accept:'image/png,image/jpeg' });
+      fi.addEventListener('change', function(){
+        const f = fi.files[0];
+        if (!f) return;
+        if (!/^image\/(png|jpeg)$/.test(f.type) || f.size > 5 * 1024 * 1024) { UI.toast('รองรับเฉพาะไฟล์ JPG/PNG ขนาดไม่เกิน 5 MB', 'warn'); fi.value = ''; return; }
+        const u = URL.createObjectURL(f);
+        Sign.drawImg(pv, u).then(function(){ sigData = pv.toDataURL('image/png'); sigClear = false; st.textContent = 'ลายเซ็นใหม่ — จะบันทึกเมื่อกดบันทึก'; }, function(){ UI.toast('เปิดรูปลายเซ็นไม่ได้', 'error'); }).then(function(){ URL.revokeObjectURL(u); });
+      });
+      fm.body.appendChild(h('div', { class:'field full', style:'margin-top:12px' },
+        h('label', { text:'ลายเซ็นสแกนของผู้บริหาร (JPG/PNG) — ใช้อัตโนมัติตอนลงนามสั่งการ' }), pv, st,
+        h('div', null, fi, rec.hasSignature ? h('button', { type:'button', class:'btn sm warn', text:'ลบลายเซ็นที่บันทึกไว้', onclick: function(){ sigData = ''; sigClear = true; fi.value = ''; pv.getContext('2d').clearRect(0, 0, pv.width, pv.height); st.textContent = 'จะลบลายเซ็นเมื่อกดบันทึก'; } }) : null)));
+    }
+  },
+  resetPw(r){
+    formModal('รีเซ็ตรหัสผ่าน: ' + r.username, [
+      { name:'newPassword', label:'รหัสผ่านใหม่', type:'password', required:true, full:true, max:64, pattern:PW_RULE, patternMsg:'อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข', help:'แจ้งผู้ใช้ทางช่องทางที่ปลอดภัย ผู้ใช้เข้าสู่ระบบด้วยรหัสนี้ได้ทันที' }
+    ], {}, async function(v){ await api('users.resetPassword', { username:r.username, newPassword:v.newPassword }, { loadingText:'กำลังบันทึกข้อมูล...' }); Router.go('users'); }, 'รีเซ็ต');
+  }
+};
+
+/* =====================================================================
+   AUDIT LOG
+   ===================================================================== */
+const Audit = {
+  state: { page:1, f:{} },
+  async render(c){
+    const s = Audit.state;
+    c.appendChild(UI.section('ประวัติการทำรายการ'));
+    const q = h('input', { placeholder:'ค้นหารายละเอียด/โมดูล', value:s.f.search || '', maxlength:100 });
+    const u = h('input', { placeholder:'username', value:s.f.username || '', maxlength:30 });
+    const acts = ['LOGIN_SUCCESS','LOGIN_FAIL','LOGIN_BLOCKED','LOGOUT','CREATE_INCOMING','UPDATE_INCOMING','DELETE_INCOMING','CREATE_OUTGOING','UPDATE_OUTGOING','DELETE_OUTGOING','CREATE_TASK','UPDATE_TASK','UPDATE_TASK_STATUS','CREATE_CIRCULAR','CREATE_USER','UPDATE_USER','RESET_PASSWORD','ENABLE_USER','DISABLE_USER','CHANGE_PW','UPDATE_SETTINGS'];
+    const a = h('select', null, h('option', { value:'', text:'ทุกการกระทำ' }), acts.map(function(x){ return h('option', { value:x, text:actionLabel(x), selected:s.f.action === x }); }));
+    const go = function(){ s.f = { search:q.value.trim(), username:u.value.trim().toLowerCase(), action:a.value }; s.page = 1; Router.go('audit'); };
+    c.appendChild(h('div', { class:'toolbar' }, h('div', { class:'field grow' }, h('label', { text:'คำค้น' }), q), h('div', { class:'field' }, h('label', { text:'ผู้ใช้' }), u), h('div', { class:'field' }, h('label', { text:'การกระทำ' }), a), h('button', { class:'btn', text:'ค้นหา', onclick:go })));
+    const d = await api('audit.list', Object.assign({ page:s.page, pageSize:50 }, s.f), { toast:false });
+    c.appendChild(UI.table([
+      { label:'เวลา', render: function(r){ return fmtDateTime(r.timestamp); } },
+      { label:'ผู้ใช้', key:'username' },
+      { label:'การกระทำ', render: function(r){ return actionLabel(r.action); } },
+      { label:'โมดูล', key:'module' },
+      { label:'ผล', render: function(r){ return h('span', { class:'badge ' + (r.result === 'SUCCESS' ? 'b-ok' : 'b-bad'), text: r.result === 'SUCCESS' ? 'สำเร็จ' : 'ไม่สำเร็จ' }); } },
+      { label:'รายละเอียด', cls:'subj', key:'detail' },
+      { label:'รหัสระเบียน', render: function(r){ return r.recordId ? h('code', { style:'font-size:11px', text:String(r.recordId).slice(0, 13) }) : '-'; } }
+    ], d.records, 'ยังไม่มีประวัติ'));
+    c.appendChild(UI.pager(d.total, d.page, d.pageSize, function(p){ s.page = p; Router.go('audit'); }));
+  }
+};
+
+/* =====================================================================
+   REPORTS
+   ===================================================================== */
+const Reports = {
+  f: null,
+  async render(c){
+    const fyNow = currentFiscalBE();
+    if (!Reports.f) { const r = thaiFiscalRange(fyNow); Reports.f = { dateFrom:r.from, dateTo:r.to, period:'month' }; }
+    const f = Reports.f;
+    c.appendChild(UI.section('รายงาน', h('button', { class:'btn sec', text:'🖨 พิมพ์รายงาน', onclick: function(){ window.print(); } })));
+    const fy = h('select', null, h('option', { value:'', text:'— เลือกปีงบ —' }), [0,1,2,3].map(function(i){ return h('option', { value:fyNow - i, text:'ปีงบ ' + (fyNow - i) }); }));
+    const df = h('input', { type:'date', value:f.dateFrom }), dt = h('input', { type:'date', value:f.dateTo });
+    const per = h('select', null, [['day','รายวัน'],['month','รายเดือน'],['year','รายปี']].map(function(p){ return h('option', { value:p[0], text:p[1], selected:f.period === p[0] }); }));
+    fy.addEventListener('change', function(){ if (fy.value) { const r = thaiFiscalRange(+fy.value); df.value = r.from; dt.value = r.to; } });
+    c.appendChild(h('div', { class:'toolbar no-print' }, h('div', { class:'field' }, h('label', { text:'ปีงบประมาณ' }), fy), h('div', { class:'field' }, h('label', { text:'ตั้งแต่' }), df), h('div', { class:'field' }, h('label', { text:'ถึง' }), dt), h('div', { class:'field' }, h('label', { text:'จัดกลุ่ม' }), per),
+      h('button', { class:'btn', text:'ประมวลผล', onclick: function(){ if (df.value && dt.value && df.value > dt.value) { UI.toast('วันที่เริ่มต้องไม่หลังวันที่สิ้นสุด', 'warn'); return; } Reports.f = { dateFrom:df.value, dateTo:dt.value, period:per.value }; Router.go('reports'); } })));
+    await activeUsers().catch(function(){ return []; });
+    const d = await api('reports.stats', f, { loadingText:'กำลังประมวลผลรายงาน...', toast:false });
+    c.appendChild(h('p', { class:'muted', text:'ช่วงข้อมูล: ' + fmtDate(f.dateFrom) + ' – ' + fmtDate(f.dateTo) + ' (คำนวณจากข้อมูลจริง ณ ' + fmtDateTime(new Date().toISOString()) + ')' }));
+    const card = function(icon, v, l, cls){ return h('div', { class:'card stat ' + (cls || '') }, h('div', { class:'si', text:icon }), h('div', null, h('div', { class:'sv', text:String(v || 0) }), h('div', { class:'sl', text:l }))); };
+    c.appendChild(h('div', { class:'grid stats' }, card('📥', d.totalIncoming, 'หนังสือรับในช่วง'), card('📤', d.totalOutgoing, 'หนังสือส่งในช่วง'),
+      card('⏳', d.pendingTasks, 'หนังสือ/งานคงค้าง'), card('⏰', d.nearDeadlineTasks, 'ใกล้ครบกำหนด', 'warn'), card('🚨', d.overdueTasks, 'เกินกำหนด', 'bad'),
+      card('🔁', (d.circularAckRate || 0) + '%', 'อัตรารับทราบหนังสือเวียน')));
+    const objRows = function(o){ return Object.keys(o || {}).map(function(k){ return { k:k, v:o[k] }; }); };
+    c.appendChild(h('div', { class:'grid two', style:'margin-top:14px' },
+      h('div', { class:'card' }, h('h3', { text:'จำนวนหนังสือรับ–ส่ง ' + per.options[per.selectedIndex].text }),
+        UI.table([{ label:'ช่วงเวลา', render: function(r){ return f.period === 'day' ? fmtDate(r.key) : f.period === 'month' ? (function(){ const p = r.key.split('-'); return fmtDate(p[0] + '-' + p[1] + '-01').replace(/^\d+\s/, ''); })() : 'พ.ศ. ' + (+r.key + 543); } }, { label:'รับ', key:'incoming' }, { label:'ส่ง', key:'outgoing' }], d.byPeriod, 'ยังไม่มีข้อมูลในระบบ')),
+      h('div', { class:'card' }, h('h3', { text:'แยกตามประเภทหนังสือ' }), UI.table([{ label:'ประเภท', key:'k' }, { label:'จำนวน', key:'v' }], objRows(d.byDocumentType), 'ยังไม่มีข้อมูลในระบบ'))));
+    c.appendChild(h('div', { class:'grid two', style:'margin-top:14px' },
+      h('div', { class:'card' }, h('h3', { text:'งานตามผู้รับผิดชอบ' }), UI.table([{ label:'ผู้รับผิดชอบ', render: function(r){ return userName(r.username); } }, { label:'ทั้งหมด', key:'total' }, { label:'เสร็จ', key:'done' }, { label:'คงค้าง', key:'pending' }, { label:'เกินกำหนด', render: function(r){ return r.overdue ? h('span', { class:'badge b-bad', text:String(r.overdue) }) : '0'; } }], d.tasksByAssignee, 'ยังไม่มีงาน')),
+      h('div', { class:'card' }, h('h3', { text:'หนังสือรับตามสถานะ' }), UI.table([{ label:'สถานะ', render: function(r){ return statusBadge(r.k); } }, { label:'จำนวน', key:'v' }], objRows(d.incomingByStatus), 'ยังไม่มีข้อมูลในระบบ'))));
+    c.appendChild(h('div', { class:'card', style:'margin-top:14px' }, h('h3', { text:'หนังสือ/งานเกินกำหนด' }),
+      UI.table([{ label:'งาน', cls:'subj', key:'taskTitle' }, { label:'ผู้รับผิดชอบ', render: function(r){ return userName(r.assignee); } }, { label:'กำหนด', render: function(r){ return deadlineCell(r.deadline, r.status); } }, { label:'สถานะ', render: function(r){ return statusBadge(r.status); } }], d.overdueList, 'ไม่มีงานเกินกำหนด')));
+  }
+};
+
+/* =====================================================================
+   SETTINGS (admin)
+   ===================================================================== */
+const Settings = {
+  async render(c){
+    c.appendChild(UI.section('ตั้งค่าระบบ'));
+    const d = await api('settings.get', {}, { toast:false });
+    const fields = [
+      { name:'orgName', label:'ชื่อหน่วยงาน', required:true, max:200, full:true },
+      { name:'orgShort', label:'ชื่อย่อ', required:true, max:50 },
+      { name:'province', label:'จังหวัด', max:100 },
+      { name:'fiscalYear', label:'ปีงบประมาณปัจจุบัน (พ.ศ.)', required:true, max:4, pattern:/^25\d{2}$/, patternMsg:'ระบุปี พ.ศ. 4 หลัก' },
+      { name:'docPrefix', label:'รหัสหน่วยงานสำหรับเลขหนังสือส่ง', max:50, help:'ตรวจสอบรหัสตัวพยัญชนะและตัวเลขประจำส่วนราชการตามระเบียบงานสารบรรณกับหน่วยงานก่อนใช้งาน' }
+    ];
+    const form = buildForm(fields, d);
+    const btn = h('button', { class:'btn', text:'บันทึกการตั้งค่า' });
+    btn.addEventListener('click', function(){ const v = readForm(form); if (!v) return; runAction(btn, async function(){ await api('settings.update', { settings:v }, { loadingText:'กำลังบันทึกข้อมูล...' }); }); });
+    c.appendChild(h('div', { class:'card' }, form, h('div', { style:'margin-top:14px;text-align:right' }, btn)));
+    c.appendChild(h('div', { class:'notice', style:'margin-top:14px', text:'การสำรองข้อมูล: ผู้ดูแลควรตั้ง Trigger รายวันให้ฟังก์ชัน backupSpreadsheet() และ cleanupSessions() ใน Apps Script Editor และทดลองกู้คืนจากไฟล์สำรองอย่างน้อยไตรมาสละครั้ง' }));
+  }
+};
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+(async function init(){
+  $('loginBtn').addEventListener('click', function(){ Auth.openLogin(); });
+  $('logoutBtn').addEventListener('click', function(e){ runAction(e.currentTarget, Auth.logout); });
+  $('menuBtn').addEventListener('click', function(){ document.body.classList.toggle('nav-open'); });
+  $('backdrop').addEventListener('click', function(){ document.body.classList.remove('nav-open'); });
+  window.addEventListener('unhandledrejection', function(e){ const er = e.reason || {}; if (!er.handled) UI.toast(er.message || 'เกิดข้อผิดพลาดที่ไม่คาดคิด', 'bad'); e.preventDefault(); });
+  await Auth.restore();
+  Shell.render();
+  Router.go('dashboard');
+  if (!IS_GAS && GAS_URL.indexOf('PASTE_') === 0) UI.toast('ยังไม่ได้ตั้งค่า GAS_URL — เปิดระบบผ่าน Web App URL ของ Apps Script (แนะนำ) หรือแก้ค่า GAS_URL ที่ต้นไฟล์ index.html', 'warn');
+})();
+</script>
+</body>
+</html>
